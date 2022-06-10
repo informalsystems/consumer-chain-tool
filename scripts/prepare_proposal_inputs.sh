@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eux
+set -eu
 
 WASM_CONTRACTS="$1"
 CHAIN_ID="$2"
@@ -7,6 +7,7 @@ MULTISIG_ADDRESS="$3"
 CONSUMER_BINARY="$4"
 WASM_BINARY="$5"
 TOOL_OUTPUT="$6"
+GENESIS_TIME="$7"
 MONIKER="moniker"
 VALIDATOR="validator"
 KEYRING="--keyring-backend test"
@@ -19,11 +20,16 @@ WASM_GRPC_ADDR="$NODE_IP:9071"
 CONSUMER_HOME="$HOME/.tool_consumer"
 CONST_PASPHRASE="torch bargain math dinner van fabric fly crystal answer first crush fan soap moon scene number dial any silk kangaroo clarify empower awake fiscal"
 
-#TODO: check if killall has efect, if not list processes and kill it with kill -9. do this for all kill calls
+# Delete all generated data.
+clean_up(){
+    killall $WASM_BINARY &> /dev/null || true
+    rm -rf $WASM_HOME
+    rm -rf $CONSUMER_HOME
+}
+trap clean_up EXIT
+
 # Clean start
-killall $WASM_BINARY &> /dev/null || true
-rm -rf $WASM_HOME
-rm -rf $CONSUMER_HOME
+clean_up
 
 # Create directories if they don't exist.
 mkdir -p $TOOL_OUTPUT
@@ -66,13 +72,26 @@ sed -i -r "/node =/ s/= .*/= \"tcp:\/\/${WASM_RPC_LADDR}\"/" $WASM_HOME/config/c
         --p2p.laddr tcp://${NODE_IP}:26636 \
         --grpc-web.enable=false \
         --home $WASM_HOME &> $WASM_HOME/logs &
-# TODO: Think about nicer way to make sure chain is up and running (producing block)
-sleep 10
+sleep 1
+
+# Wait for chain to be up and running
+end=$((SECONDS+60))
+while ! ./$WASM_BINARY q block 2 --chain-id $CHAIN_ID --home $WASM_HOME;
+do
+  if [[ $SECONDS -gt $end ]]; then
+        echo "Chain did not start within 60s."
+        exit 1
+  fi
+  sleep 5
+done
 
 #TODO: set permissions for contract instantiation
 # Deploy contracts
 for CONTRACT in "$WASM_CONTRACTS"/*.wasm; do
-  ./$WASM_BINARY tx wasm store $CONTRACT --instantiate-only-address $MULTISIG_ADDRESS --from $VALIDATOR $KEYRING --chain-id $CHAIN_ID --home $WASM_HOME $TX_FLAGS -b block -y
+  if ! ./$WASM_BINARY tx wasm store $CONTRACT --instantiate-only-address $MULTISIG_ADDRESS --from $VALIDATOR $KEYRING --chain-id $CHAIN_ID --home $WASM_HOME $TX_FLAGS -b block -y;then
+    echo "Failed to upload $CONTRACT"
+    exit 1
+  fi
 done
 
 #Stop the chain
@@ -87,7 +106,7 @@ jq -s '.[0].app_state.wasm = .[1].app_state.wasm | .[0]' $CONSUMER_HOME/config/g
 # //TODO: set parameters of each module in CONSUMER_HOME/genesis_wasm.json
 
 #TODO: genesis_time must be some constant value (which one?) each time the tool is run so that we get the same hash
-jq '.genesis_time = "2022-01-01T00:00:00.000000000Z" | .' $CONSUMER_HOME/genesis_wasm.json > $CONSUMER_HOME/genesis_1.json
+jq --arg e "${GENESIS_TIME}" '.genesis_time = $e | .' $CONSUMER_HOME/genesis_wasm.json > $CONSUMER_HOME/genesis_1.json
 
 # Copy genesis to the output folder
 cp "$CONSUMER_HOME/genesis_1.json" "$TOOL_OUTPUT/genesis.json"
@@ -100,8 +119,4 @@ tee $TOOL_OUTPUT/sha256hashes.json<<EOF
 }
 EOF
 
-#################################### CLEAN UP #########################################
-# Delete all generated data. TODO: check if some other directories should be deleted
-rm -rf $WASM_HOME
-rm -rf $CONSUMER_HOME
 

@@ -40,6 +40,7 @@ sleep 1
 sleep 10
 
 # Build consumer chain proposal file
+#spawn_time "2022-03-11T09:02:14.718477-08:00",
 tee $PROVIDER_HOME/consumer-proposal.json<<EOF
 {
     "title": "Create a chain",
@@ -48,9 +49,9 @@ tee $PROVIDER_HOME/consumer-proposal.json<<EOF
     "initial_height": {
         "revision_height": 1
     },
-    "genesis_hash": "b4177a23e9dfc15bec68d855d660124e0121d4327b33c1e58088a18c9e9eb86e",
+    "genesis_hash": "111000270b66873c758cfca5b45a36bf0e3a51b13815d7b520ca0d6f9ca9fb13",
     "binary_hash": "414b93c0eb16f0803b1f5c4f56306bd2b0771f03c488dd767f07a965e6822980",
-    "spawn_time": "2022-03-11T09:02:14.718477-08:00",
+    "spawn_time": "2022-03-11T17:02:14.718477Z", 
     "deposit": "10000001stake"
 }
 EOF

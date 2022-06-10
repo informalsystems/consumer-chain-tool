@@ -1,7 +1,7 @@
 #!/bin/bash
-set -eux
+set -eu
 
-#bash prepare_proposal.sh $HOME/wasm_contracts wasm wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya $HOME/tool_output_step1 "Create a chain" "Gonna be a great chain" 1 2022-03-11T09:02:14.718477-08:00 10000001stake
+#bash prepare_proposal.sh $HOME/wasm_contracts wasm wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya $HOME/tool_output_step1 "Create a chain" "Gonna be a great chain" 1 2022-03-11T17:02:14.718477Z 10000001stake
 
 TOOL_INPUT="$1"
 CONSUMER_CHAIN_ID="$2"
@@ -17,8 +17,16 @@ WASM_BINARY="wasmd"
 WASM_CONTRACTS_SOURCES="$TOOL_INPUT/contracts_source_code" #TODO: temporary separated, in the end we will have only one folder that contains just the source code
 TOOL_OUTPUT="$TOOL_OUTPUT_DIR/$(date +"%Y-%m-%d_%H-%M-%S")"
 
-#TODO: check error code
-bash prepare_proposal_inputs.sh $TOOL_INPUT $CONSUMER_CHAIN_ID $CONSUMER_CHAIN_MULTISIG_ADDRESS $CONSUMER_CHAIN_BINARY $WASM_BINARY $TOOL_OUTPUT
+# Delete all generated data.
+clean_up () {
+    rm -f $TOOL_OUTPUT/sha256hashes.json
+} 
+trap clean_up EXIT
+
+if ! bash prepare_proposal_inputs.sh $TOOL_INPUT $CONSUMER_CHAIN_ID $CONSUMER_CHAIN_MULTISIG_ADDRESS $CONSUMER_CHAIN_BINARY $WASM_BINARY $TOOL_OUTPUT $PROPOSAL_SPAWN_TIME;then
+    echo "Error while preparing proposal data!"
+    exit 1
+fi
 
 #################################### COPY SMART CONTRACTS #############################
 
@@ -43,6 +51,3 @@ tee $TOOL_OUTPUT/proposal.json<<EOF
     "deposit": "$PROPOSAL_DEPOSIT"
 }
 EOF
-
-rm -f $TOOL_OUTPUT/sha256hashes.json
-
