@@ -25,7 +25,7 @@ func NewVerifyProposalCommand() *cobra.Command {
 
 			bashCmd := exec.Command("/bin/bash", "verify_proposal.sh",
 				smartContractsLocation, consumerChainId, multisigAddress,
-				ConsumerBinary, CosmWasmBinary, toolOutputLocation,
+				ConsumerBinary, CosmWasmBinary, toolOutputLocation, "true", // true for create output subdirectory
 				strconv.Itoa(proposalId), providerNodeId, ProviderBinary)
 
 			RunCmdAndPrintOutput(bashCmd)

@@ -37,13 +37,13 @@ const (
 	--proposal-title "Create a chain" \
 	--proposal-description "Gonna be a great chain" \
 	--proposal-revision-height 1 \
-	--proposal-spawn-time 2022-03-11T09:02:14.718477-08:00 \
+	--proposal-spawn-time 2022-03-11T17:02:14.718477Z \
 	--proposal-deposit 10000001stake`
 	VerifyCmdUsageExample = `consumer-chain-tool verify-proposal \
 	--smart-contracts-location $HOME/wasm_contracts \
 	--consumer-chain-id wasm \
 	--multisig-address wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya \
-	--tool-output-location $HOME/tool_output_step2/$(date +"%Y-%m-%d_%H-%M-%S") \
+	--tool-output-location $HOME/tool_output_step2 \
 	--proposal-id 1 \
 	--provider-node-id "tcp://localhost:26657"`
 	FinalizeGenesisCmdUsageExample = `consumer-chain-tool finalize-genesis \

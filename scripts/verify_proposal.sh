@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-#bash verify_proposal.sh $HOME/wasm_contracts wasm wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya wasmd_consumer wasmd $HOME/tool_output_step2/$(date +"%Y-%m-%d_%H-%M-%S") 1 "tcp://localhost:26657" providerd
+#bash verify_proposal.sh $HOME/wasm_contracts wasm wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya wasmd_consumer wasmd $HOME/tool_output_step2 true 1 "tcp://localhost:26657" providerd
 
 TOOL_INPUT="$1"
 CONSUMER_CHAIN_ID="$2"
@@ -9,15 +9,20 @@ CONSUMER_CHAIN_MULTISIG_ADDRESS="$3"
 CONSUMER_CHAIN_BINARY="$4"
 WASM_BINARY="$5"
 TOOL_OUTPUT="$6"
-PROPOSAL_ID="$7"
-PROVIDER_NODE_ID="$8"
-PROVIDER_BINARY="$9"
+CREATE_OUTPUT_SUBFOLDER="$7"
+PROPOSAL_ID="$8"
+PROVIDER_NODE_ID="$9"
+PROVIDER_BINARY="${10}"
 
 # Delete all generated data.
  clean_up () {
    rm -f $TOOL_OUTPUT/proposal_info.json
  } 
  trap clean_up EXIT
+
+if [ "$CREATE_OUTPUT_SUBFOLDER" = "true" ]; then
+  TOOL_OUTPUT=$TOOL_OUTPUT"/$(date +"%Y-%m-%d_%H-%M-%S")"
+fi
 
 # Create directories if they don't exist.
 mkdir -p $TOOL_OUTPUT

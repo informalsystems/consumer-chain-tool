@@ -14,6 +14,7 @@ PROVIDER_BINARY="providerd"
 CONSUMER_CHAIN_BINARY="wasmd_consumer"
 WASM_BINARY="wasmd"
 TOOL_OUTPUT="$TOOL_OUTPUT_DIR/$(date +"%Y-%m-%d_%H-%M-%S")"
+CREATE_OUTPUT_SUBFOLDER="false"
 
 # Delete all generated data.
 clean_up () {
@@ -22,7 +23,7 @@ clean_up () {
 } 
 trap clean_up EXIT
 
-if ! bash verify_proposal.sh $WASM_CONTRACTS $CONSUMER_CHAIN_ID $CONSUMER_CHAIN_MULTISIG_ADDRESS $CONSUMER_CHAIN_BINARY $WASM_BINARY $TOOL_OUTPUT $PROPOSAL_ID $PROVIDER_NODE_ID $PROVIDER_BINARY; then
+if ! bash verify_proposal.sh $WASM_CONTRACTS $CONSUMER_CHAIN_ID $CONSUMER_CHAIN_MULTISIG_ADDRESS $CONSUMER_CHAIN_BINARY $WASM_BINARY $TOOL_OUTPUT $CREATE_OUTPUT_SUBFOLDER $PROPOSAL_ID $PROVIDER_NODE_ID $PROVIDER_BINARY; then
 	echo "Error while verifying proposal!"
 	exit 1
 fi
@@ -31,3 +32,4 @@ fi
 jq -s '.[0].app_state.ccvconsumer = .[1] | .[0]' $TOOL_OUTPUT/genesis.json $TOOL_OUTPUT/consumer_section.json > $TOOL_OUTPUT/genesis_consumer.json && \
 	mv $TOOL_OUTPUT/genesis_consumer.json $TOOL_OUTPUT/genesis.json
 
+echo "Final genesis is prepared!"
