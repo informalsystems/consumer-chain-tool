@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-#bash prepare_proposal.sh $HOME/wasm_contracts wasm wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya $HOME/tool_output_step1 "Create a chain" "Gonna be a great chain" 1 2022-03-11T17:02:14.718477Z 10000001stake
+#bash prepare_proposal.sh $HOME/wasm_contracts wasm wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya $HOME/tool_output_step1 "Create a chain" "Gonna be a great chain" 1 2022-06-01T09:10:00.000000000-00:00 10000001stake
 
 TOOL_INPUT="$1"
 CONSUMER_CHAIN_ID="$2"
@@ -10,7 +10,7 @@ TOOL_OUTPUT_DIR="$4"
 PROPOSAL_TITLE="$5"
 PROPOSAL_DESCRIPTION="$6" #TODO: add link with output to description
 PROPOSAL_REVISION_HEIGHT="$7"
-PROPOSAL_SPAWN_TIME="$8" #TODO format is strange, but only works that way- 08:00
+PROPOSAL_SPAWN_TIME="$8"
 PROPOSAL_DEPOSIT="$9"
 CONSUMER_CHAIN_BINARY="wasmd_consumer"
 WASM_BINARY="wasmd"

@@ -118,5 +118,3 @@ tee $TOOL_OUTPUT/sha256hashes.json<<EOF
     "binary_hash": "$(sha256sum $CONSUMER_BINARY | cut -d " " -f 1)"
 }
 EOF
-
-

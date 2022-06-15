@@ -28,14 +28,18 @@ fi
 mkdir -p $TOOL_OUTPUT
 
 # Query the proposal to get the hashes from the chain
-./$PROVIDER_BINARY q gov proposal $PROPOSAL_ID --node $PROVIDER_NODE_ID --output json > $TOOL_OUTPUT/proposal_info.json 2>&1
+if ! ./$PROVIDER_BINARY q gov proposal $PROPOSAL_ID --node $PROVIDER_NODE_ID --output json > $TOOL_OUTPUT/proposal_info.json; then
+  echo "Failed to query proposal with id $PROPOSAL_ID! Verify proposal failed."
+  exit 1
+fi
+
 GENESIS_HASH_ON_CHAIN=$(jq -r ".content.genesis_hash" $TOOL_OUTPUT/proposal_info.json)
 BINARY_HASH_ON_CHAIN=$(jq -r ".content.binary_hash" $TOOL_OUTPUT/proposal_info.json)
 PROPOSAL_SPAWN_TIME=$(jq -r ".content.spawn_time" $TOOL_OUTPUT/proposal_info.json)
 
 if ! bash prepare_proposal_inputs.sh $TOOL_INPUT $CONSUMER_CHAIN_ID $CONSUMER_CHAIN_MULTISIG_ADDRESS $CONSUMER_CHAIN_BINARY $WASM_BINARY $TOOL_OUTPUT $PROPOSAL_SPAWN_TIME;then
-echo "Error while preparing proposal data!"
-    exit 1
+  echo "Error while preparing proposal data! Verify proposal failed."
+  exit 1
 fi
 
 GENESIS_HASH=$(jq -r ".genesis_hash" $TOOL_OUTPUT/sha256hashes.json)
@@ -43,9 +47,8 @@ BINARY_HASH=$(jq -r ".binary_hash" $TOOL_OUTPUT/sha256hashes.json)
 
 if [ "$GENESIS_HASH" != "$GENESIS_HASH_ON_CHAIN" ] || [ "$BINARY_HASH" != "$BINARY_HASH_ON_CHAIN" ]
 then
-  echo "Recalculated genesis and binary hashes don't match the ones from the proposal!"
+  echo "Recalculated genesis and binary hashes don't match the ones from the proposal! Verify proposal failed."
   exit 1
 else
-  echo "Genesis and binary hashes are correct!"
+  echo "Genesis and binary hashes are correct! Verify proposal succeded."
 fi
-

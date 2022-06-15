@@ -24,12 +24,16 @@ clean_up () {
 trap clean_up EXIT
 
 if ! bash verify_proposal.sh $WASM_CONTRACTS $CONSUMER_CHAIN_ID $CONSUMER_CHAIN_MULTISIG_ADDRESS $CONSUMER_CHAIN_BINARY $WASM_BINARY $TOOL_OUTPUT $CREATE_OUTPUT_SUBFOLDER $PROPOSAL_ID $PROVIDER_NODE_ID $PROVIDER_BINARY; then
-	echo "Error while verifying proposal!"
+	echo "Error while verifying proposal! Finalize genesis failed."
 	exit 1
 fi
 
-./$PROVIDER_BINARY q provider consumer-genesis $CONSUMER_CHAIN_ID --node $PROVIDER_NODE_ID --output json > $TOOL_OUTPUT/consumer_section.json
+if ! ./$PROVIDER_BINARY q provider consumer-genesis $CONSUMER_CHAIN_ID --node $PROVIDER_NODE_ID --output json > $TOOL_OUTPUT/consumer_section.json; then
+	echo "Failed to get consumer genesis for the chain-id '$CONSUMER_CHAIN_ID'! Finalize genesis failed."
+	exit 1
+fi
+
 jq -s '.[0].app_state.ccvconsumer = .[1] | .[0]' $TOOL_OUTPUT/genesis.json $TOOL_OUTPUT/consumer_section.json > $TOOL_OUTPUT/genesis_consumer.json && \
 	mv $TOOL_OUTPUT/genesis_consumer.json $TOOL_OUTPUT/genesis.json
 
-echo "Final genesis is prepared!"
+echo "Finalize genesis succeded!"
