@@ -13,8 +13,8 @@ func NewPrepareProposalCommand() *cobra.Command {
 	prepareProposalCmd := &cobra.Command{
 		Use:     getPrepareCommandUsage(),
 		Example: getPrepareCommandExample(),
-		Short:   "Create genesis.json and proposal.json for the given set of smart contracts",
-		Long:    `TODO: Add a longer description`,
+		Short:   PrepareProposalShortDesc,
+		Long:    getPrepareProposalLongDesc(),
 		Args:    cobra.ExactArgs(PrepareProposalCmdParamsCount),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inputs, err := NewPrepareProposalArgs(args)
@@ -46,6 +46,11 @@ func getPrepareCommandExample() string {
 	return fmt.Sprintf("%s %s %s %s %s %s %s %s %s %s %s",
 		ToolName, PrepareProposalCmdName, "$HOME/wasm_contracts", "wasm", "wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya", "$HOME/tool_output_step1",
 		"\"Create a chain\"", "\"Gonna be a great chain\"", "1", "2022-06-01T09:10:00.000000000-00:00", "10000001stake")
+}
+
+func getPrepareProposalLongDesc() string {
+	return fmt.Sprintf(PrepareProposalLongDesc, SmartContractsLocation, ConsumerChainId, MultisigAddress, ToolOutputLocation,
+		ProposalTitle, ProposalDescription, ProposalRevisionHeight, ProposalSpawnTime, ProposalDeposit)
 }
 
 // TODO: proposalRevisionHeight and proposalSpawnTime are only passed to shell script so there is no need to make them int and time.Time?
@@ -139,3 +144,21 @@ func NewPrepareProposalArgs(args []string) (*PrepareProposalArgs, error) {
 
 	return commandArgs, nil
 }
+
+const (
+	PrepareProposalShortDesc = "Create genesis.json and proposal.json for the given set of CosmWasm smart contracts"
+	PrepareProposalLongDesc  = `This command uses the provided set of CosmWasm smart contracts (together with some other input arguments) to create genesis.json that will have those smart contracts deployed.
+Then it calculates the SHA256 hashes of this genesis.json file and the binary that should be used to start a new blockchain with this genesis.json file.
+It then uses those SHA256 hashes (together with some other input arguments) to create the proposal.json file that can be submitted as a proposal to the Interchain Security enabled provider blockchain.
+The source code of the smart contracts is also copied to the output directory so that it can be used later during the verification process.
+Command arguments:
+    %s - The location of the directory that contains CosmWasm smart contracts source code. TODO: add details about subdirectories structure and other things (Cargo.toml etc.)?
+    %s - The desired chain ID of the consumer chain.
+    %s - The multi-signature address that will have the permission to instantiate contracts from the set of pre-deployed codes.
+    %s - The location of the directory where the resulting genesis.json, proposal.json and smart contracts source code files will be saved.
+    %s - Proposal title.
+    %s - Proposal description. It should contain the publicly available link where the results of this command will be placed.
+    %s - The proposal revision height
+    %s - The desired time of consumer chain start in the yyyy-MM-ddTHH:mm:ss.fffffffff-zz:zz format (e.g. 2022-06-01T09:10:00.000000000-00:00). TODO: how to give better format?
+    %s - The amount of tokens for the initial proposal deposit.`
+)

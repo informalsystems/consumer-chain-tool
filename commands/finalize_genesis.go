@@ -12,8 +12,8 @@ func NewFinalizeGenesisCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     getFinalizeCommandUsage(),
 		Example: getFinalizeCommandExample(),
-		Short:   "TODO: Finalize genesis description",
-		Long:    `TODO: Add a longer description`,
+		Short:   FinalizeGenesisShortDesc,
+		Long:    getFinalizeGenesisLongDesc(),
 		Args:    cobra.ExactArgs(FinalizeGenesisCmdParamsCount),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inputs, err := NewFinalizeGenesisArgs(args)
@@ -44,6 +44,11 @@ func getFinalizeCommandExample() string {
 	return fmt.Sprintf("%s %s %s %s %s %s %s %s",
 		ToolName, FinalizeGenesisCmdName, "$HOME/wasm_contracts", "wasm", "wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya",
 		"$HOME/tool_output_step2", "1", "tcp://localhost:26657")
+}
+
+func getFinalizeGenesisLongDesc() string {
+	return fmt.Sprintf(FinalizeGenesisLongDesc, SmartContractsLocation, ConsumerChainId,
+		MultisigAddress, ToolOutputLocation, ProposalId, ProviderNodeId)
 }
 
 type FinalizeGenesisArgs struct {
@@ -112,3 +117,16 @@ func NewFinalizeGenesisArgs(args []string) (*FinalizeGenesisArgs, error) {
 
 	return commandArgs, nil
 }
+
+const (
+	FinalizeGenesisShortDesc = "Build the final genesis.json for Interchain Secuirty consumer chain with CosmWasm smart contracts deployed"
+	FinalizeGenesisLongDesc  = `This command takes the same inputs and goes through the same process as 'verify-proposal' command to verify the command inputs against the provided proposal.
+It then queries the provider chain to obtain the consumer section for the chain ID and appends this data to the initial genesis.json, which results in Interchain Secuirty consumer-enabled genesis with CosmWasm smart contracts deployed.
+Command arguments:
+    %s - The location of the directory that contains CosmWasm smart contracts source code. TODO: add details about subdirectories structure and other things (Cargo.toml etc.)?
+    %s - The chain ID of the consumer chain.
+    %s - The multi-signature address that will have the permission to instantiate contracts from the set of predeployed codes.
+    %s - The location of the directory where the resulting genesis.json and sha256hashes.json files will be saved.
+    %s - The ID of the 'create consumer chain' proposal submitted to the provider chain, whose data will be used to verify if the inputs of this command match the ones from the proposal.
+    %s - The address of the provider chain node in the following format: tcp://IP_ADDRESS:PORT_NUMBER. This address is used to query the provider chain to obtain the proposal information.`
+)

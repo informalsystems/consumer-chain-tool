@@ -69,6 +69,8 @@ func Execute() {
 		Long:  `TODO: Add a longer description`,
 	}
 
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
+
 	rootCmd.AddCommand(
 		NewPrepareProposalCommand(),
 		NewVerifyProposalCommand(),
