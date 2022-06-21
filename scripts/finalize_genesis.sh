@@ -15,6 +15,7 @@ CONSUMER_CHAIN_BINARY="wasmd_consumer"
 WASM_BINARY="wasmd"
 TOOL_OUTPUT="$TOOL_OUTPUT_DIR/$(date +"%Y-%m-%d_%H-%M-%S")"
 CREATE_OUTPUT_SUBFOLDER="false"
+LOG="$TOOL_OUTPUT/log_file.txt"
 
 # Delete all generated data.
 clean_up () {
@@ -23,13 +24,15 @@ clean_up () {
 } 
 trap clean_up EXIT
 
-if ! bash verify_proposal.sh $WASM_CONTRACTS $CONSUMER_CHAIN_ID $CONSUMER_CHAIN_MULTISIG_ADDRESS $CONSUMER_CHAIN_BINARY $WASM_BINARY $TOOL_OUTPUT $CREATE_OUTPUT_SUBFOLDER $PROPOSAL_ID $PROVIDER_NODE_ID $PROVIDER_BINARY; then
-	echo "Error while verifying proposal! Finalize genesis failed."
+if ! bash verify_proposal.sh $WASM_CONTRACTS $CONSUMER_CHAIN_ID $CONSUMER_CHAIN_MULTISIG_ADDRESS $CONSUMER_CHAIN_BINARY $WASM_BINARY $TOOL_OUTPUT $CREATE_OUTPUT_SUBFOLDER $PROPOSAL_ID $PROVIDER_NODE_ID $PROVIDER_BINARY; 
+then
+	echo "Error while verifying proposal! Finalize genesis failed. Please check the $LOG for more details."
 	exit 1
 fi
 
-if ! ./$PROVIDER_BINARY q provider consumer-genesis $CONSUMER_CHAIN_ID --node $PROVIDER_NODE_ID --output json > $TOOL_OUTPUT/consumer_section.json; then
-	echo "Failed to get consumer genesis for the chain-id '$CONSUMER_CHAIN_ID'! Finalize genesis failed."
+if ! ./$PROVIDER_BINARY q provider consumer-genesis $CONSUMER_CHAIN_ID --node $PROVIDER_NODE_ID --output json > $TOOL_OUTPUT/consumer_section.json; 
+then
+	echo "Failed to get consumer genesis for the chain-id '$CONSUMER_CHAIN_ID'! Finalize genesis failed. Please check the $LOG for more details."
 	exit 1
 fi
 
@@ -37,3 +40,4 @@ jq -s '.[0].app_state.ccvconsumer = .[1] | .[0]' $TOOL_OUTPUT/genesis.json $TOOL
 	mv $TOOL_OUTPUT/genesis_consumer.json $TOOL_OUTPUT/genesis.json
 
 echo "Finalize genesis succeded!"
+echo "Output data is saved at $TOOL_OUTPUT"

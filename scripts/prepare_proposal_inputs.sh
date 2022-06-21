@@ -19,6 +19,7 @@ WASM_RPC_LADDR="$NODE_IP:26638"
 WASM_GRPC_ADDR="$NODE_IP:9071"
 CONSUMER_HOME="$HOME/.tool_consumer"
 CONST_PASPHRASE="torch bargain math dinner van fabric fly crystal answer first crush fan soap moon scene number dial any silk kangaroo clarify empower awake fiscal"
+LOG="$TOOL_OUTPUT/log_file.txt"
 
 # Delete all generated data.
 clean_up(){
@@ -39,26 +40,26 @@ mkdir -p $TOOL_OUTPUT
 
 #################################### CONSUMER ###################################
 # Generate initial genesis file
-./$CONSUMER_BINARY init $MONIKER --chain-id $CHAIN_ID --home $CONSUMER_HOME
+./$CONSUMER_BINARY init $MONIKER --chain-id $CHAIN_ID --home $CONSUMER_HOME &>> $LOG
 sleep 1
 
 #################################### WASMD #####################################
 # Init wasm chain
-./$WASM_BINARY init $MONIKER --chain-id $CHAIN_ID --home $WASM_HOME
+./$WASM_BINARY init $MONIKER --chain-id $CHAIN_ID --home $WASM_HOME  &>> $LOG
 sleep 1
 
 #TODO: Create user account keypair. Must use --recover to always get the same keys since address is stored when wasm stores the code (creator property)
 echo $CONST_PASPHRASE | ./$WASM_BINARY keys add $VALIDATOR $KEYRING --home $WASM_HOME --recover --output json > $WASM_HOME/validator_keypair.json 2>&1
 
 # Add stake to user account
-./$WASM_BINARY add-genesis-account $(jq -r .address $WASM_HOME/validator_keypair.json)  1000000000stake --home $WASM_HOME
+./$WASM_BINARY add-genesis-account $(jq -r .address $WASM_HOME/validator_keypair.json)  1000000000stake --home $WASM_HOME  &>> $LOG
 
 # Generate gentx file
-./$WASM_BINARY gentx $VALIDATOR $STAKE --chain-id $CHAIN_ID --home $WASM_HOME $KEYRING
+./$WASM_BINARY gentx $VALIDATOR $STAKE --chain-id $CHAIN_ID --home $WASM_HOME $KEYRING  &>> $LOG
 sleep 1
 
 # Add validator
-./$WASM_BINARY collect-gentxs --home $WASM_HOME --gentx-dir $WASM_HOME/config/gentx/
+./$WASM_BINARY collect-gentxs --home $WASM_HOME --gentx-dir $WASM_HOME/config/gentx/  &>> $LOG
 sleep 1
 
 
@@ -76,9 +77,10 @@ sleep 1
 
 # Wait for chain to be up and running
 end=$((SECONDS+60))
-while ! ./$WASM_BINARY q block 2 --chain-id $CHAIN_ID --home $WASM_HOME;
+while ! ./$WASM_BINARY q block 2 --chain-id $CHAIN_ID --home $WASM_HOME &> /dev/null;
 do
-  if [[ $SECONDS -gt $end ]]; then
+  if [[ $SECONDS -gt $end ]]; 
+  then
         echo "Chain did not start within 60s."
         exit 1
   fi
@@ -88,7 +90,8 @@ done
 #TODO: set permissions for contract instantiation
 # Deploy contracts
 for CONTRACT in "$WASM_CONTRACTS"/*.wasm; do
-  if ! ./$WASM_BINARY tx wasm store $CONTRACT --instantiate-only-address $MULTISIG_ADDRESS --from $VALIDATOR $KEYRING --chain-id $CHAIN_ID --home $WASM_HOME $TX_FLAGS -b block -y;then
+  if ! ./$WASM_BINARY tx wasm store $CONTRACT --instantiate-only-address $MULTISIG_ADDRESS --from $VALIDATOR $KEYRING --chain-id $CHAIN_ID --home $WASM_HOME $TX_FLAGS -b block -y &>> $LOG;
+  then
     echo "Failed to upload $CONTRACT"
     exit 1
   fi
@@ -105,14 +108,13 @@ jq -s '.[0].app_state.wasm = .[1].app_state.wasm | .[0]' $CONSUMER_HOME/config/g
 #################################### TIDY GENESIS #####################################
 # //TODO: set parameters of each module in CONSUMER_HOME/genesis_wasm.json
 
-#TODO: genesis_time must be some constant value (which one?) each time the tool is run so that we get the same hash
 jq --arg e "${GENESIS_TIME}" '.genesis_time = $e | .' $CONSUMER_HOME/genesis_wasm.json > $CONSUMER_HOME/genesis_1.json
 
 # Copy genesis to the output folder
 cp "$CONSUMER_HOME/genesis_1.json" "$TOOL_OUTPUT/genesis.json"
 
 # Calculate binary and genesis hashes
-tee $TOOL_OUTPUT/sha256hashes.json<<EOF
+tee $TOOL_OUTPUT/sha256hashes.json &> /dev/null <<EOF
 {
     "genesis_hash": "$(sha256sum $TOOL_OUTPUT/genesis.json | cut -d " " -f 1)",
     "binary_hash": "$(sha256sum $CONSUMER_BINARY | cut -d " " -f 1)"

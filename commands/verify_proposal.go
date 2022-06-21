@@ -16,15 +16,15 @@ func NewVerifyProposalCommand() *cobra.Command {
 		Long:    getVerifyProposalLongDesc(),
 		Args:    cobra.ExactArgs(VerifyProposalCmdParamsCount),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			inpus, err := NewVerifyProposalArgs(args)
+			inputs, err := NewVerifyProposalArgs(args)
 			if err != nil {
 				return err
 			}
 
 			bashCmd := exec.Command("/bin/bash", "verify_proposal.sh",
-				inpus.smartContractsLocation, inpus.consumerChainId, inpus.multisigAddress,
-				ConsumerBinary, CosmWasmBinary, inpus.toolOutputLocation, "true", // true for create output subdirectory
-				inpus.proposalId, inpus.providerNodeId, ProviderBinary)
+				inputs.smartContractsLocation, inputs.consumerChainId, inputs.multisigAddress,
+				ConsumerBinary, CosmWasmBinary, inputs.toolOutputLocation, "true", // true for create output subdirectory
+				inputs.proposalId, inputs.providerNodeId, ProviderBinary)
 
 			RunCmdAndPrintOutput(bashCmd)
 
@@ -63,7 +63,7 @@ type VerifyProposalArgs struct {
 
 func NewVerifyProposalArgs(args []string) (*VerifyProposalArgs, error) {
 	if len(args) != VerifyProposalCmdParamsCount {
-		return nil, fmt.Errorf("Unexpected number of arguments. Expected: %d, received: %d.", VerifyProposalCmdParamsCount, len(args))
+		return nil, fmt.Errorf("unexpected number of arguments. Expected: %d, received: %d", VerifyProposalCmdParamsCount, len(args))
 	}
 
 	commandArgs := new(VerifyProposalArgs)
@@ -98,7 +98,7 @@ func NewVerifyProposalArgs(args []string) (*VerifyProposalArgs, error) {
 	}
 
 	proposalId := strings.TrimSpace(args[4])
-	if IsValidProposalId(proposalId) {
+	if isPositiveInt(proposalId) {
 		commandArgs.proposalId = proposalId
 	} else {
 		errors = append(errors, fmt.Sprintf("Provided proposal id '%s' is not valid.", proposalId))
@@ -123,6 +123,7 @@ const (
 	VerifyProposalShortDesc = "Verify that genesis and binary hashes created from the provided inputs match the hashes from the 'create consumer chain' proposal with the given proposal ID"
 	VerifyProposalLongDesc  = `This command takes the same inputs and goes through the same process as 'prepare-proposal' command to create the genesis.json file and calculate its hash.
 It then queries the 'create consumer chain' proposal from the provider chain to obtain the hashes. If the hashes from the proposal match the recalculated ones, then the resulting genesis.json file contains the smart contracts provided to the input of this command.
+
 Command arguments:
     %s - The location of the directory that contains CosmWasm smart contracts source code. TODO: add details about subdirectories structure and other things (Cargo.toml etc.)?
     %s - The chain ID of the consumer chain.

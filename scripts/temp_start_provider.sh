@@ -46,10 +46,11 @@ tee $PROVIDER_HOME/consumer-proposal.json<<EOF
     "description": "Gonna be a great chain",
     "chain_id": "wasm",
     "initial_height": {
-        "revision_height": 1
+        "revision_height": 1,
+        "revision_number": 1
     },
-    "genesis_hash": "b53391e1263d94512bf959e28e68eb33c8aa6b0ba01aec30d74ea8c14f3b3f50",
-    "binary_hash": "414b93c0eb16f0803b1f5c4f56306bd2b0771f03c488dd767f07a965e6822980",
+    "genesis_hash": "5c5a82f958621228e704c0a00bb591386c9f891f8bfadb1a34b4c15114174d99",
+    "binary_hash": "6206a4647a6edb2040cb5507c59ad3abaed7e8a887f9651df3f991a7460a93d7",
     "spawn_time": "2022-06-01T09:10:00.000000000-00:00", 
     "deposit": "10000001stake"
 }

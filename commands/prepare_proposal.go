@@ -25,7 +25,7 @@ func NewPrepareProposalCommand() *cobra.Command {
 			bashCmd := exec.Command("/bin/bash", "prepare_proposal.sh",
 				inputs.smartContractsLocation, inputs.consumerChainId, inputs.multisigAddress,
 				inputs.toolOutputLocation, inputs.proposalTitle, inputs.proposalDescription,
-				inputs.proposalRevisionHeight, inputs.proposalSpawnTime, inputs.proposalDeposit)
+				inputs.proposalRevisionHeight, inputs.proposalRevisionNumber, inputs.proposalSpawnTime, inputs.proposalDeposit)
 
 			RunCmdAndPrintOutput(bashCmd)
 
@@ -37,24 +37,23 @@ func NewPrepareProposalCommand() *cobra.Command {
 }
 
 func getPrepareCommandUsage() string {
-	return fmt.Sprintf("%s [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s]",
+	return fmt.Sprintf("%s [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s] [%s]",
 		PrepareProposalCmdName, SmartContractsLocation, ConsumerChainId, MultisigAddress, ToolOutputLocation,
-		ProposalTitle, ProposalDescription, ProposalRevisionHeight, ProposalSpawnTime, ProposalDeposit)
+		ProposalTitle, ProposalDescription, ProposalRevisionHeight, ProposalRevisionNumber, ProposalSpawnTime, ProposalDeposit)
 }
 
 func getPrepareCommandExample() string {
-	return fmt.Sprintf("%s %s %s %s %s %s %s %s %s %s %s",
+	return fmt.Sprintf("%s %s %s %s %s %s %s %s %s %s %s %s",
 		ToolName, PrepareProposalCmdName, "$HOME/wasm_contracts", "wasm", "wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya", "$HOME/tool_output_step1",
-		"\"Create a chain\"", "\"Gonna be a great chain\"", "1", "2022-06-01T09:10:00.000000000-00:00", "10000001stake")
+		"\"Create a chain\"", "\"Gonna be a great chain\"", "1", "1", "2022-06-01T09:10:00.000000000-00:00", "10000001stake")
 }
 
 func getPrepareProposalLongDesc() string {
 	return fmt.Sprintf(PrepareProposalLongDesc, SmartContractsLocation, ConsumerChainId, MultisigAddress, ToolOutputLocation,
-		ProposalTitle, ProposalDescription, ProposalRevisionHeight, ProposalSpawnTime, ProposalDeposit)
+		ProposalTitle, ProposalDescription, ProposalRevisionHeight, ProposalRevisionNumber, ProposalSpawnTime, ProposalDeposit)
 }
 
 // TODO: proposalRevisionHeight and proposalSpawnTime are only passed to shell script so there is no need to make them int and time.Time?
-// TODO: expand with RevisionNumber, proposal also!
 type PrepareProposalArgs struct {
 	smartContractsLocation string
 	consumerChainId        string
@@ -63,13 +62,14 @@ type PrepareProposalArgs struct {
 	proposalTitle          string
 	proposalDescription    string
 	proposalRevisionHeight string
+	proposalRevisionNumber string
 	proposalSpawnTime      string
 	proposalDeposit        string
 }
 
 func NewPrepareProposalArgs(args []string) (*PrepareProposalArgs, error) {
 	if len(args) != PrepareProposalCmdParamsCount {
-		return nil, fmt.Errorf("Unexpected number of arguments. Expected: %d, received: %d.", PrepareProposalCmdParamsCount, len(args))
+		return nil, fmt.Errorf("unexpected number of arguments. Expected: %d, received: %d", PrepareProposalCmdParamsCount, len(args))
 	}
 
 	commandArgs := new(PrepareProposalArgs)
@@ -118,20 +118,27 @@ func NewPrepareProposalArgs(args []string) (*PrepareProposalArgs, error) {
 	}
 
 	proposalRevisionHeight := strings.TrimSpace(args[6])
-	if IsValidProposalRevisionHeight(proposalRevisionHeight) {
+	if isPositiveInt(proposalRevisionHeight) {
 		commandArgs.proposalRevisionHeight = proposalRevisionHeight
 	} else {
 		errors = append(errors, fmt.Sprintf("Provided proposal revision height '%s' is not valid.", proposalRevisionHeight))
 	}
 
-	proposalSpawnTime := strings.TrimSpace(args[7])
+	proposalRevisionNumber := strings.TrimSpace(args[7])
+	if isPositiveInt(proposalRevisionNumber) {
+		commandArgs.proposalRevisionNumber = proposalRevisionNumber
+	} else {
+		errors = append(errors, fmt.Sprintf("Provided proposal revision number '%s' is not valid.", proposalRevisionNumber))
+	}
+
+	proposalSpawnTime := strings.TrimSpace(args[8])
 	if spawnTime, isValid := IsValidDateTime(proposalSpawnTime); isValid {
 		commandArgs.proposalSpawnTime = spawnTime.Format(time.RFC3339Nano)
 	} else {
 		errors = append(errors, fmt.Sprintf("Provided proposal spawn time '%s' is not valid.", proposalSpawnTime))
 	}
 
-	proposalDeposit := strings.TrimSpace(args[8])
+	proposalDeposit := strings.TrimSpace(args[9])
 	if IsValidDeposit(proposalDeposit) {
 		commandArgs.proposalDeposit = proposalDeposit
 	} else {
@@ -151,6 +158,7 @@ const (
 Then it calculates the SHA256 hashes of this genesis.json file and the binary that should be used to start a new blockchain with this genesis.json file.
 It then uses those SHA256 hashes (together with some other input arguments) to create the proposal.json file that can be submitted as a proposal to the Interchain Security enabled provider blockchain.
 The source code of the smart contracts is also copied to the output directory so that it can be used later during the verification process.
+	
 Command arguments:
     %s - The location of the directory that contains CosmWasm smart contracts source code. TODO: add details about subdirectories structure and other things (Cargo.toml etc.)?
     %s - The desired chain ID of the consumer chain.
@@ -159,6 +167,7 @@ Command arguments:
     %s - Proposal title.
     %s - Proposal description. It should contain the publicly available link where the results of this command will be placed.
     %s - The proposal revision height
+    %s - The proposal revision number
     %s - The desired time of consumer chain start in the yyyy-MM-ddTHH:mm:ss.fffffffff-zz:zz format (e.g. 2022-06-01T09:10:00.000000000-00:00). TODO: how to give better format?
     %s - The amount of tokens for the initial proposal deposit.`
 )

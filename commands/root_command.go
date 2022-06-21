@@ -7,8 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
-	"strconv"
-	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -18,7 +16,7 @@ const (
 	PrepareProposalCmdName        = "prepare-proposal"
 	VerifyProposalCmdName         = "verify-proposal"
 	FinalizeGenesisCmdName        = "finalize-genesis"
-	PrepareProposalCmdParamsCount = 9
+	PrepareProposalCmdParamsCount = 10
 	VerifyProposalCmdParamsCount  = 6
 	FinalizeGenesisCmdParamsCount = 6
 	ProviderBinary                = "providerd"
@@ -32,23 +30,10 @@ const (
 	ProposalTitle                 = "proposal-title"
 	ProposalDescription           = "proposal-description"
 	ProposalRevisionHeight        = "proposal-revision-height"
+	ProposalRevisionNumber        = "proposal-revision-number"
 	ProposalSpawnTime             = "proposal-spawn-time"
 	ProposalDeposit               = "proposal-deposit"
 	ProviderNodeId                = "provider-node-id"
-	VerifyCmdUsageExample         = `consumer-chain-tool verify-proposal \
-	--smart-contracts-location $HOME/wasm_contracts \
-	--consumer-chain-id wasm \
-	--multisig-address wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya \
-	--tool-output-location $HOME/tool_output_step2 \
-	--proposal-id 1 \
-	--provider-node-id "tcp://localhost:26657"`
-	FinalizeGenesisCmdUsageExample = `consumer-chain-tool finalize-genesis \
-	--smart-contracts-location $HOME/wasm_contracts \
-	--consumer-chain-id wasm \
-	--multisig-address wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya \
-	--tool-output-location $HOME/tool_output_step2 \
-	--proposal-id 1 \
-	--provider-node-id "tcp://localhost:26657"`
 )
 
 var (
@@ -65,8 +50,8 @@ func init() {
 func Execute() {
 	var rootCmd = &cobra.Command{
 		Use:   ToolName,
-		Short: fmt.Sprintf("%s - prepare and verify proposals for a new Interchain Security enabled CosmWasm consumer chain", ToolName),
-		Long:  `TODO: Add a longer description`,
+		Short: fmt.Sprintf(ToolShortDesc, ToolName),
+		Long:  ToolLongDesc,
 	}
 
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
@@ -82,7 +67,6 @@ func Execute() {
 	}
 }
 
-//TODO: output only "echo" commands
 func RunCmdAndPrintOutput(bashCmd *exec.Cmd) {
 	cmdReader, err := bashCmd.StdoutPipe()
 	if err != nil {
@@ -106,55 +90,11 @@ func RunCmdAndPrintOutput(bashCmd *exec.Cmd) {
 	}
 }
 
-func IsValidInputPath(pathStr string) bool {
-	fileInfo, err := os.Stat(pathStr)
-
-	return err == nil && fileInfo.IsDir()
-}
-
-func IsValidOutputPath(pathStr string) bool {
-	return os.MkdirAll(pathStr, os.ModePerm) == nil
-}
-
-// TODO: should we use regular expressions in this check?
-func IsValidString(input string) bool {
-	return input != ""
-}
-
-// TODO: this is ugly :)
-func IsValidProposalRevisionHeight(input string) bool {
-	return isPositiveInt(input)
-}
-
-// TODO: this is ugly :)
-func IsValidProposalId(input string) bool {
-	return isPositiveInt(input)
-}
-
-func isPositiveInt(input string) bool {
-	revHeight, err := strconv.Atoi(input)
-	if err != nil || revHeight < 0 {
-		return false
-	}
-
-	return true
-}
-
-func IsValidDateTime(input string) (time.Time, bool) {
-	t, err := time.Parse(time.RFC3339Nano, input)
-	if err != nil {
-		return time.Now().UTC(), false
-	}
-
-	return t, true
-}
-
-// TODO: basic validation, expects only one coin and its amount
-func IsValidDeposit(input string) bool {
-	matches := reDecCoin.FindStringSubmatch(input)
-	if matches == nil || len(matches) != 3 {
-		return false
-	}
-
-	return true
-}
+const (
+	ToolShortDesc = "%s - prepare and verify proposal and genesis file for a new Interchain Security enabled CosmWasm consumer chain"
+	ToolLongDesc  = `The purpose of the tool is to produce output in a form of proposal and genesis files and in that manner simplify the process of starting the CosmWasm consumer chain with the pre-deployed wasm codes. Process of creating output data should be done in following steps:
+    1. The proposer runs prepare-proposal tool command which generates genesis.json file with wasm section containing the pre-deployed codes and proposal.json file which contains hashes of genesis and consumer binary files. Description of a proposal might contain a link to the location from where genesis file, source code of wasm contracts and consumer binary can be downloaded  
+    2. The proposer manually submits the proposal to the provider chain
+    3. Validators optionally can run verify-proposal command of the tool to check if the hash of downloaded genesis matches the one from proposal and decide whether to vote for proposal
+    4. Finally, validators run finalize-genesis command, which generate a final genesis file by adding ccvconsumer section in it. Validators can then use such genesis for running the consumer chain`
+)

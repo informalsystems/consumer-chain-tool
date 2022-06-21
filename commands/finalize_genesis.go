@@ -62,7 +62,7 @@ type FinalizeGenesisArgs struct {
 
 func NewFinalizeGenesisArgs(args []string) (*FinalizeGenesisArgs, error) {
 	if len(args) != FinalizeGenesisCmdParamsCount {
-		return nil, fmt.Errorf("Unexpected number of arguments. Expected: %d, received: %d.", FinalizeGenesisCmdParamsCount, len(args))
+		return nil, fmt.Errorf("unexpected number of arguments. Expected: %d, received: %d", FinalizeGenesisCmdParamsCount, len(args))
 	}
 
 	commandArgs := new(FinalizeGenesisArgs)
@@ -97,7 +97,7 @@ func NewFinalizeGenesisArgs(args []string) (*FinalizeGenesisArgs, error) {
 	}
 
 	proposalId := strings.TrimSpace(args[4])
-	if IsValidProposalId(proposalId) {
+	if isPositiveInt(proposalId) {
 		commandArgs.proposalId = proposalId
 	} else {
 		errors = append(errors, fmt.Sprintf("Provided proposal id '%s' is not valid.", proposalId))
@@ -119,9 +119,10 @@ func NewFinalizeGenesisArgs(args []string) (*FinalizeGenesisArgs, error) {
 }
 
 const (
-	FinalizeGenesisShortDesc = "Build the final genesis.json for Interchain Secuirty consumer chain with CosmWasm smart contracts deployed"
+	FinalizeGenesisShortDesc = "Build the final genesis.json for Interchain Security consumer chain with CosmWasm smart contracts deployed"
 	FinalizeGenesisLongDesc  = `This command takes the same inputs and goes through the same process as 'verify-proposal' command to verify the command inputs against the provided proposal.
 It then queries the provider chain to obtain the consumer section for the chain ID and appends this data to the initial genesis.json, which results in Interchain Secuirty consumer-enabled genesis with CosmWasm smart contracts deployed.
+
 Command arguments:
     %s - The location of the directory that contains CosmWasm smart contracts source code. TODO: add details about subdirectories structure and other things (Cargo.toml etc.)?
     %s - The chain ID of the consumer chain.
