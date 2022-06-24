@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -24,7 +25,7 @@ func NewVerifyProposalCommand() *cobra.Command {
 			bashCmd := exec.Command("/bin/bash", "verify_proposal.sh",
 				inputs.smartContractsLocation, inputs.consumerChainId, inputs.multisigAddress,
 				ConsumerBinary, CosmWasmBinary, inputs.toolOutputLocation, "true", // true for create output subdirectory
-				inputs.proposalId, inputs.providerNodeId, ProviderBinary)
+				inputs.proposalGenesisHash, inputs.proposalBinaryHash, inputs.proposalSpawnTime)
 
 			RunCmdAndPrintOutput(bashCmd)
 
@@ -36,20 +37,20 @@ func NewVerifyProposalCommand() *cobra.Command {
 }
 
 func getVerifyCommandUsage() string {
-	return fmt.Sprintf("%s [%s] [%s] [%s] [%s] [%s] [%s]",
+	return fmt.Sprintf("%s [%s] [%s] [%s] [%s] [%s] [%s] [%s]",
 		VerifyProposalCmdName, SmartContractsLocation, ConsumerChainId,
-		MultisigAddress, ToolOutputLocation, ProposalId, ProviderNodeId)
+		MultisigAddress, ToolOutputLocation, ProposalGenesisHash, ProposalBinaryHash, ProposalSpawnTime)
 }
 
 func getVerifyCommandExample() string {
-	return fmt.Sprintf("%s %s %s %s %s %s %s %s",
+	return fmt.Sprintf("%s %s %s %s %s %s %s %s %s",
 		ToolName, VerifyProposalCmdName, "$HOME/wasm_contracts", "wasm", "wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya",
-		"$HOME/tool_output_step2", "1", "tcp://localhost:26657")
+		"$HOME/tool_output_step2", "5c5a82f958621228e704c0a00bb591386c9f891f8bfadb1a34b4c15114174d99", "bbe2de71aacd5af0d4a98118ede4911b7993f447a07c773f9c7c6fe7d2d005ca", "2022-06-01T09:10:00Z")
 }
 
 func getVerifyProposalLongDesc() string {
 	return fmt.Sprintf(VerifyProposalLongDesc, SmartContractsLocation, ConsumerChainId,
-		MultisigAddress, ToolOutputLocation, ProposalId, ProviderNodeId)
+		MultisigAddress, ToolOutputLocation, ProposalGenesisHash, ProposalBinaryHash, ProposalSpawnTime)
 }
 
 type VerifyProposalArgs struct {
@@ -57,8 +58,9 @@ type VerifyProposalArgs struct {
 	consumerChainId        string
 	multisigAddress        string
 	toolOutputLocation     string
-	proposalId             string
-	providerNodeId         string
+	proposalGenesisHash    string
+	proposalBinaryHash     string
+	proposalSpawnTime      string
 }
 
 func NewVerifyProposalArgs(args []string) (*VerifyProposalArgs, error) {
@@ -97,21 +99,26 @@ func NewVerifyProposalArgs(args []string) (*VerifyProposalArgs, error) {
 		errors = append(errors, fmt.Sprintf("Provided output path '%s' is not a valid directory.", toolOutputLocation))
 	}
 
-	proposalId := strings.TrimSpace(args[4])
-	if isPositiveInt(proposalId) {
-		commandArgs.proposalId = proposalId
+	proposalGenesisHash := strings.TrimSpace(args[4])
+	if IsValidString(proposalGenesisHash) {
+		commandArgs.proposalGenesisHash = proposalGenesisHash
 	} else {
-		errors = append(errors, fmt.Sprintf("Provided proposal id '%s' is not valid.", proposalId))
+		errors = append(errors, fmt.Sprintf("Provided proposal genesis hash '%s' is not valid.", proposalGenesisHash))
 	}
 
-	// TODO: not sure if we should validate node id with regex
-	providerNodeId := strings.TrimSpace(args[5])
-	if IsValidString(providerNodeId) {
-		commandArgs.providerNodeId = providerNodeId
+	proposalBinaryHash := strings.TrimSpace(args[5])
+	if IsValidString(proposalBinaryHash) {
+		commandArgs.proposalBinaryHash = proposalBinaryHash
 	} else {
-		errors = append(errors, fmt.Sprintf("Provided provider node id '%s' is not valid.", providerNodeId))
+		errors = append(errors, fmt.Sprintf("Provided proposal binary hash '%s' is not valid.", proposalBinaryHash))
 	}
 
+	proposalSpawnTime := strings.TrimSpace(args[6])
+	if spawnTime, isValid := IsValidDateTime(proposalSpawnTime); isValid {
+		commandArgs.proposalSpawnTime = spawnTime.Format(time.RFC3339Nano)
+	} else {
+		errors = append(errors, fmt.Sprintf("Provided proposal spawn time '%s' is not valid.", proposalSpawnTime))
+	}
 	if len(errors) > 0 {
 		return nil, fmt.Errorf(strings.Join(errors, "\n"))
 	}
@@ -129,6 +136,7 @@ Command arguments:
     %s - The chain ID of the consumer chain.
     %s - The multi-signature address that will have the permission to instantiate contracts from the set of predeployed codes.
     %s - The location of the directory where the resulting genesis.json and sha256hashes.json files will be saved.
-    %s - The ID of the 'create consumer chain' proposal submitted to the provider chain, whose data will be used to verify if the inputs of this command match the ones from the proposal.
-    %s - The address of the provider chain node in the following format: tcp://IP_ADDRESS:PORT_NUMBER. This address is used to query the provider chain to obtain the proposal information.`
+    %s - The proposal's hash of the genesis file. It can be retrieved by quering a provider chain. 
+    %s - The proposal's hash of the consumer binary. It can be retrieved by quering a provider chain.
+    %s - The proposal's spawn time. It can be retrieved by quering a provider chain.`
 )

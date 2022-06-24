@@ -23,7 +23,7 @@ func NewFinalizeGenesisCommand() *cobra.Command {
 
 			bashCmd := exec.Command("/bin/bash", "finalize_genesis.sh",
 				inputs.smartContractsLocation, inputs.consumerChainId, inputs.multisigAddress,
-				inputs.toolOutputLocation, inputs.proposalId, inputs.providerNodeId)
+				inputs.toolOutputLocation, inputs.proposalId, inputs.providerNodeAddress, inputs.providerBinaryPath)
 
 			RunCmdAndPrintOutput(bashCmd)
 
@@ -35,20 +35,20 @@ func NewFinalizeGenesisCommand() *cobra.Command {
 }
 
 func getFinalizeCommandUsage() string {
-	return fmt.Sprintf("%s [%s] [%s] [%s] [%s] [%s] [%s]",
+	return fmt.Sprintf("%s [%s] [%s] [%s] [%s] [%s] [%s] [%s]",
 		FinalizeGenesisCmdName, SmartContractsLocation, ConsumerChainId,
-		MultisigAddress, ToolOutputLocation, ProposalId, ProviderNodeId)
+		MultisigAddress, ToolOutputLocation, ProposalId, ProviderNodeAddress, ProviderBinaryPath)
 }
 
 func getFinalizeCommandExample() string {
-	return fmt.Sprintf("%s %s %s %s %s %s %s %s",
+	return fmt.Sprintf("%s %s %s %s %s %s %s %s %s",
 		ToolName, FinalizeGenesisCmdName, "$HOME/wasm_contracts", "wasm", "wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya",
-		"$HOME/tool_output_step2", "1", "tcp://localhost:26657")
+		"$HOME/tool_output_step2", "1", "tcp://localhost:26657", "$HOME/providerd")
 }
 
 func getFinalizeGenesisLongDesc() string {
 	return fmt.Sprintf(FinalizeGenesisLongDesc, SmartContractsLocation, ConsumerChainId,
-		MultisigAddress, ToolOutputLocation, ProposalId, ProviderNodeId)
+		MultisigAddress, ToolOutputLocation, ProposalId, ProviderNodeAddress, ProviderBinaryPath)
 }
 
 type FinalizeGenesisArgs struct {
@@ -57,7 +57,8 @@ type FinalizeGenesisArgs struct {
 	multisigAddress        string
 	toolOutputLocation     string
 	proposalId             string
-	providerNodeId         string
+	providerNodeAddress    string
+	providerBinaryPath     string
 }
 
 func NewFinalizeGenesisArgs(args []string) (*FinalizeGenesisArgs, error) {
@@ -104,11 +105,18 @@ func NewFinalizeGenesisArgs(args []string) (*FinalizeGenesisArgs, error) {
 	}
 
 	// TODO: not sure if we should validate node id with regex
-	providerNodeId := strings.TrimSpace(args[5])
-	if IsValidString(providerNodeId) {
-		commandArgs.providerNodeId = providerNodeId
+	providerNodeAddress := strings.TrimSpace(args[5])
+	if IsValidString(providerNodeAddress) {
+		commandArgs.providerNodeAddress = providerNodeAddress
 	} else {
-		errors = append(errors, fmt.Sprintf("Provided provider node id '%s' is not valid.", providerNodeId))
+		errors = append(errors, fmt.Sprintf("Provided provider node address '%s' is not valid.", providerNodeAddress))
+	}
+
+	providerBinaryPath := strings.TrimSpace(args[6])
+	if IsValidFilePath(providerBinaryPath) {
+		commandArgs.providerBinaryPath = providerBinaryPath
+	} else {
+		errors = append(errors, fmt.Sprintf("Provided provider binary path '%s' is not valid.", providerBinaryPath))
 	}
 
 	if len(errors) > 0 {
@@ -129,5 +137,6 @@ Command arguments:
     %s - The multi-signature address that will have the permission to instantiate contracts from the set of predeployed codes.
     %s - The location of the directory where the resulting genesis.json and sha256hashes.json files will be saved.
     %s - The ID of the 'create consumer chain' proposal submitted to the provider chain, whose data will be used to verify if the inputs of this command match the ones from the proposal.
-    %s - The address of the provider chain node in the following format: tcp://IP_ADDRESS:PORT_NUMBER. This address is used to query the provider chain to obtain the proposal information.`
+    %s - The address of the provider chain node in the following format: tcp://IP_ADDRESS:PORT_NUMBER. This address is used to query the provider chain to obtain the consumer section for the genesis file.
+    %s - The location of the provider binary.`
 )

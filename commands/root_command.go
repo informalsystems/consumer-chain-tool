@@ -17,9 +17,8 @@ const (
 	VerifyProposalCmdName         = "verify-proposal"
 	FinalizeGenesisCmdName        = "finalize-genesis"
 	PrepareProposalCmdParamsCount = 10
-	VerifyProposalCmdParamsCount  = 6
-	FinalizeGenesisCmdParamsCount = 6
-	ProviderBinary                = "providerd"
+	VerifyProposalCmdParamsCount  = 7
+	FinalizeGenesisCmdParamsCount = 7
 	ConsumerBinary                = "wasmd_consumer"
 	CosmWasmBinary                = "wasmd"
 	SmartContractsLocation        = "smart-contracts-location"
@@ -33,7 +32,10 @@ const (
 	ProposalRevisionNumber        = "proposal-revision-number"
 	ProposalSpawnTime             = "proposal-spawn-time"
 	ProposalDeposit               = "proposal-deposit"
-	ProviderNodeId                = "provider-node-id"
+	ProposalGenesisHash           = "proposal-genesis-hash"
+	ProposalBinaryHash            = "proposal-binary-hash"
+	ProviderNodeAddress           = "provider-node-address"
+	ProviderBinaryPath            = "provider-binary-path"
 )
 
 var (

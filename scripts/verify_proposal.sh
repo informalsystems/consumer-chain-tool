@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-#bash verify_proposal.sh $HOME/wasm_contracts wasm wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya wasmd_consumer wasmd $HOME/tool_output_step2 true 1 "tcp://localhost:26657" providerd
+#bash verify_proposal.sh $HOME/wasm_contracts wasm wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya wasmd_consumer wasmd $HOME/tool_output_step2 true 5c5a82f958621228e704c0a00bb591386c9f891f8bfadb1a34b4c15114174d99 bbe2de71aacd5af0d4a98118ede4911b7993f447a07c773f9c7c6fe7d2d005ca 2022-06-01T09:10:00Z
 
 TOOL_INPUT="$1"
 CONSUMER_CHAIN_ID="$2"
@@ -10,9 +10,9 @@ CONSUMER_CHAIN_BINARY="$4"
 WASM_BINARY="$5"
 TOOL_OUTPUT="$6"
 CREATE_OUTPUT_SUBFOLDER="$7"
-PROPOSAL_ID="$8"
-PROVIDER_NODE_ID="$9"
-PROVIDER_BINARY="${10}"
+PROPOSAL_GENESIS_HASH="$8"
+PROPOSAL_BINARY_HASH="$9"
+PROPOSAL_SPAWN_TIME="${10}"
 
 # Delete all generated data.
  clean_up () {
@@ -29,23 +29,6 @@ LOG="$TOOL_OUTPUT/log_file.txt"
 # Create directories if they don't exist.
 mkdir -p $TOOL_OUTPUT
 
-# Query the proposal to get the hashes from the chain
-if ! ./$PROVIDER_BINARY q gov proposal $PROPOSAL_ID --node $PROVIDER_NODE_ID --output json > $TOOL_OUTPUT/proposal_info.json; 
-then
-  echo "Failed to query proposal with id $PROPOSAL_ID! Verify proposal failed. Please check the $LOG for more details."
-  exit 1
-fi
-
-GENESIS_HASH_ON_CHAIN=$(jq -r ".content.genesis_hash" $TOOL_OUTPUT/proposal_info.json)
-BINARY_HASH_ON_CHAIN=$(jq -r ".content.binary_hash" $TOOL_OUTPUT/proposal_info.json)
-PROPOSAL_SPAWN_TIME=$(jq -r ".content.spawn_time" $TOOL_OUTPUT/proposal_info.json)
-
-if [ "$GENESIS_HASH_ON_CHAIN" == null ] || [ "$BINARY_HASH_ON_CHAIN" == null ] ||[ "$PROPOSAL_SPAWN_TIME" == null ]; 
-then
-  echo "Invalid proposal data on the provider chain!"
-  exit 1
-fi
-
 echo "Generating files and hashes for validation..."
 if ! bash prepare_proposal_inputs.sh $TOOL_INPUT $CONSUMER_CHAIN_ID $CONSUMER_CHAIN_MULTISIG_ADDRESS $CONSUMER_CHAIN_BINARY $WASM_BINARY $TOOL_OUTPUT $PROPOSAL_SPAWN_TIME;
 then
@@ -57,10 +40,20 @@ echo "Validating genesis and binary hashes..."
 GENESIS_HASH=$(jq -r ".genesis_hash" $TOOL_OUTPUT/sha256hashes.json)
 BINARY_HASH=$(jq -r ".binary_hash" $TOOL_OUTPUT/sha256hashes.json)
 
-if [ "$GENESIS_HASH" != "$GENESIS_HASH_ON_CHAIN" ] || [ "$BINARY_HASH" != "$BINARY_HASH_ON_CHAIN" ]
-then
-  echo "Recalculated genesis and binary hashes don't match the ones from the proposal! Verify proposal failed."
-  exit 1
-else
+valid=true  
+
+if [ "$GENESIS_HASH" != "$PROPOSAL_GENESIS_HASH" ]; then
+  echo "Recalculated genesis hash does not match the one from the proposal!"
+  valid=false
+fi
+
+if [ "$BINARY_HASH" != "$PROPOSAL_BINARY_HASH" ]; then
+  echo "Recalculated binary hash does not match the one from the proposal!"
+  valid=false
+fi
+
+if [ "$valid" = true ]; then
   echo "Genesis and binary hashes are correct! Verify proposal succeded."
+else
+  echo "Verify proposal failed."
 fi

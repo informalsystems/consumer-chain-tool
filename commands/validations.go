@@ -48,3 +48,8 @@ func IsValidDeposit(input string) bool {
 
 	return true
 }
+
+func IsValidFilePath(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
