@@ -9,7 +9,7 @@ CONSUMER_CHAIN_ID="$2"
 CONSUMER_CHAIN_MULTISIG_ADDRESS="$3"
 TOOL_OUTPUT_DIR="$4"
 PROPOSAL_ID="$5"
-PROVIDER_NODE_ID="$6"
+PROVIDER_NODE_ADDRESS="$6"
 PROVIDER_BINARY_PATH="$7"
 CONSUMER_CHAIN_BINARY="wasmd_consumer"
 WASM_BINARY="wasmd"
@@ -29,7 +29,7 @@ trap clean_up EXIT
 mkdir -p $TOOL_OUTPUT
 
 # Query the proposal to get the hashes from the chain
-if ! $PROVIDER_BINARY_PATH q gov proposal $PROPOSAL_ID --node $PROVIDER_NODE_ID --output json > $TOOL_OUTPUT/proposal_info.json; 
+if ! $PROVIDER_BINARY_PATH q gov proposal $PROPOSAL_ID --node $PROVIDER_NODE_ADDRESS --output json > $TOOL_OUTPUT/proposal_info.json; 
 then
   echo "Failed to query proposal with id $PROPOSAL_ID! Verify proposal failed. Please check the $LOG for more details."
   exit 1
@@ -51,7 +51,7 @@ then
 	exit 1
 fi
 
-if ! $PROVIDER_BINARY_PATH q provider consumer-genesis $CONSUMER_CHAIN_ID --node $PROVIDER_NODE_ID --output json > $TOOL_OUTPUT/consumer_section.json; 
+if ! $PROVIDER_BINARY_PATH q provider consumer-genesis $CONSUMER_CHAIN_ID --node $PROVIDER_NODE_ADDRESS --output json > $TOOL_OUTPUT/consumer_section.json; 
 then
 	echo "Failed to get consumer genesis for the chain-id '$CONSUMER_CHAIN_ID'! Finalize genesis failed. Please check the $LOG for more details."
 	exit 1

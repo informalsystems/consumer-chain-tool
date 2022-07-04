@@ -45,7 +45,7 @@ func getVerifyCommandUsage() string {
 func getVerifyCommandExample() string {
 	return fmt.Sprintf("%s %s %s %s %s %s %s %s %s",
 		ToolName, VerifyProposalCmdName, "$HOME/wasm_contracts", "wasm", "wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya",
-		"$HOME/tool_output_step2", "5c5a82f958621228e704c0a00bb591386c9f891f8bfadb1a34b4c15114174d99", "bbe2de71aacd5af0d4a98118ede4911b7993f447a07c773f9c7c6fe7d2d005ca", "2022-06-01T09:10:00Z")
+		"$HOME/tool_output_step2", "08d153603827ddbaf4a9d022f1740d67884eaa5979e376c09c5869be68f144da", "f3414a11bf4ef5dbd1e65fa341d1ece5d8b7b139f648edd0d2513e4c168a859d", "2022-06-01T09:10:00Z")
 }
 
 func getVerifyProposalLongDesc() string {

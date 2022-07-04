@@ -1,9 +1,18 @@
 package commands
 
 import (
+	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"time"
+)
+
+var (
+	reDnmString = `[a-zA-Z][a-zA-Z0-9/-]{2,127}`
+	reDecAmt    = `[[:digit:]]+(?:\.[[:digit:]]+)?|\.[[:digit:]]+`
+	reSpc       = `[[:space:]]*`
+	reDecCoin   = regexp.MustCompile(fmt.Sprintf(`^(%s)%s(%s)$`, reDecAmt, reSpc, reDnmString))
 )
 
 func IsValidInputPath(pathStr string) bool {
@@ -50,6 +59,6 @@ func IsValidDeposit(input string) bool {
 }
 
 func IsValidFilePath(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
+	fileInfo, err := os.Stat(path)
+	return err == nil && fileInfo.Mode().IsRegular()
 }

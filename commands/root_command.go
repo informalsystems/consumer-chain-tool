@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"regexp"
 
 	"github.com/spf13/cobra"
 )
@@ -36,13 +35,6 @@ const (
 	ProposalBinaryHash            = "proposal-binary-hash"
 	ProviderNodeAddress           = "provider-node-address"
 	ProviderBinaryPath            = "provider-binary-path"
-)
-
-var (
-	reDnmString = `[a-zA-Z][a-zA-Z0-9/-]{2,127}`
-	reDecAmt    = `[[:digit:]]+(?:\.[[:digit:]]+)?|\.[[:digit:]]+`
-	reSpc       = `[[:space:]]*`
-	reDecCoin   = regexp.MustCompile(fmt.Sprintf(`^(%s)%s(%s)$`, reDecAmt, reSpc, reDnmString))
 )
 
 func init() {

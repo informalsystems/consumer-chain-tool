@@ -56,4 +56,5 @@ if [ "$valid" = true ]; then
   echo "Genesis and binary hashes are correct! Verify proposal succeded."
 else
   echo "Verify proposal failed."
+  exit 1
 fi
