@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-#bash verify_proposal.sh $HOME/wasm_contracts wasm wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya wasmd_consumer wasmd $HOME/tool_output_step2 true 5c5a82f958621228e704c0a00bb591386c9f891f8bfadb1a34b4c15114174d99 bbe2de71aacd5af0d4a98118ede4911b7993f447a07c773f9c7c6fe7d2d005ca 2022-06-01T09:10:00Z
+#bash verify_proposal.sh $HOME/wasm_contracts wasm wasm1ykqt29d4ekemh5pc0d2wdayxye8yqupttf6vyz wasmd_consumer wasmd $HOME/tool_output_step2 true 5c5a82f958621228e704c0a00bb591386c9f891f8bfadb1a34b4c15114174d99 bbe2de71aacd5af0d4a98118ede4911b7993f447a07c773f9c7c6fe7d2d005ca 2022-06-01T09:10:00Z
 
 TOOL_INPUT="$1"
 CONSUMER_CHAIN_ID="$2"

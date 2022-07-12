@@ -42,7 +42,7 @@ func getFinalizeCommandUsage() string {
 
 func getFinalizeCommandExample() string {
 	return fmt.Sprintf("%s %s %s %s %s %s %s %s %s",
-		ToolName, FinalizeGenesisCmdName, "$HOME/wasm_contracts", "wasm", "wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya",
+		ToolName, FinalizeGenesisCmdName, "$HOME/wasm_contracts", "wasm", "wasm1ykqt29d4ekemh5pc0d2wdayxye8yqupttf6vyz",
 		"$HOME/tool_output_step2", "1", "tcp://localhost:26657", "$HOME/gaiad")
 }
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-#bash prepare_proposal.sh $HOME/wasm_contracts wasm wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya $HOME/tool_output_step1 "Create a chain" "Gonna be a great chain" 1 1 2022-06-01T09:10:00.000000000-00:00 10000001stake
+#bash prepare_proposal.sh $HOME/wasm_contracts wasm wasm1ykqt29d4ekemh5pc0d2wdayxye8yqupttf6vyz $HOME/tool_output_step1 "Create a chain" "Gonna be a great chain" 1 1 2022-06-01T09:10:00.000000000-00:00 10000001stake
 
 TOOL_INPUT="$1"
 CONSUMER_CHAIN_ID="$2"
@@ -48,8 +48,8 @@ tee $TOOL_OUTPUT/proposal.json  &> /dev/null <<EOF
     "description": "$PROPOSAL_DESCRIPTION",
     "chain_id": "$CONSUMER_CHAIN_ID",
     "initial_height": {
-        "revision_height": $PROPOSAL_REVISION_HEIGHT 
-        "revision_number": $PROPOSAL_REVISION_NUMBER 
+        "revision_number": $PROPOSAL_REVISION_NUMBER,
+        "revision_height": $PROPOSAL_REVISION_HEIGHT
     },
     "genesis_hash": "$(jq -r ".genesis_hash" $TOOL_OUTPUT/sha256hashes.json)",
     "binary_hash": "$(jq -r ".binary_hash" $TOOL_OUTPUT/sha256hashes.json)",

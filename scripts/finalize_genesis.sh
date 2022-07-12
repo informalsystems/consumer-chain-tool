@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-#bash finalize_genesis.sh $HOME/wasm_contracts wasm wasm1243cuuy98lxaf7ufgav0w76xt5es93afr8a3ya $HOME/tool_output_step2 1 "tcp://localhost:26657" "$HOME/providerd"
+#bash finalize_genesis.sh $HOME/wasm_contracts wasm wasm1ykqt29d4ekemh5pc0d2wdayxye8yqupttf6vyz $HOME/tool_output_step2 1 "tcp://localhost:26658" "$HOME/cosmwasm_consumer/interchain-security-pd"
 
 WASM_CONTRACTS="$1" #TODO: once SC compiling is solved, it should point to the output of step1.sh where source code of SCs are stored
 TOOL_INPUT="$HOME/tool_output_step1"
