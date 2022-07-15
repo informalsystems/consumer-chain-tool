@@ -3,18 +3,21 @@ set -eux
 
 TOTAL_COINS=100000000000stake
 STAKE_COINS=100000000stake
-PROVIDER_BINARY=providerd
+PROVIDER_BINARY=interchain-security-pd
 PROVIDER_HOME=$HOME/.tool_provider
 PROVIDER_CHAIN_ID=provider
 PROVIDER_MONIKER=provider
 VALIDATOR=validator
+NODE_IP="localhost"
+PROVIDER_RPC_LADDR="$NODE_IP:26658"
+PROVIDER_GRPC_ADDR="$NODE_IP:9091"
 
 # Clean start
 killall $PROVIDER_BINARY &> /dev/null || true
 rm -rf $PROVIDER_HOME
 
 ./$PROVIDER_BINARY init $PROVIDER_MONIKER --home $PROVIDER_HOME --chain-id $PROVIDER_CHAIN_ID
-jq ".app_state.gov.voting_params.voting_period = \"3s\" | .app_state.staking.params.unbonding_time = \"600s\"" \
+jq ".app_state.gov.voting_params.voting_period = \"3s\" | .app_state.staking.params.unbonding_time = \"600s\" | .app_state.provider.params.template_client.trusting_period = \"300s\"" \
    $PROVIDER_HOME/config/genesis.json > \
    $PROVIDER_HOME/edited_genesis.json && mv $PROVIDER_HOME/edited_genesis.json $PROVIDER_HOME/config/genesis.json
 sleep 1
@@ -35,7 +38,13 @@ sleep 1
 sleep 1
 
 # Start the chain
-./$PROVIDER_BINARY start --home $PROVIDER_HOME &> $PROVIDER_HOME/logs &
+./$PROVIDER_BINARY start \
+	--home $PROVIDER_HOME \
+	--rpc.laddr tcp://$PROVIDER_RPC_LADDR \
+	--grpc.address $PROVIDER_GRPC_ADDR \
+	--address tcp://${NODE_IP}:26655 \
+	--p2p.laddr tcp://${NODE_IP}:26656 \
+	--grpc-web.enable=false &> $PROVIDER_HOME/logs &
 # TODO: Think about nicer way to make sure chain is up and running (producing block)
 sleep 10
 
@@ -46,20 +55,20 @@ tee $PROVIDER_HOME/consumer-proposal.json<<EOF
     "description": "Gonna be a great chain",
     "chain_id": "wasm",
     "initial_height": {
-        "revision_height": 1,
-        "revision_number": 1
+        "revision_number": 0,
+        "revision_height": 4
     },
-    "genesis_hash": "08d153603827ddbaf4a9d022f1740d67884eaa5979e376c09c5869be68f144da",
-    "binary_hash": "f3414a11bf4ef5dbd1e65fa341d1ece5d8b7b139f648edd0d2513e4c168a859d",
+    "genesis_hash": "5e637f4dbc6d6fb4b950ee259b13594deebfd7f92c68644d1b2264f2daa1b9df",
+    "binary_hash": "7090c745224f2f696aaca546f2863591807b897edf33b69251b7696a2ec236fc",
     "spawn_time": "2022-06-01T09:10:00.000000000-00:00", 
     "deposit": "10000001stake"
 }
 EOF
 
 ./$PROVIDER_BINARY tx gov submit-proposal create-consumer-chain $PROVIDER_HOME/consumer-proposal.json \
-	--chain-id $PROVIDER_CHAIN_ID --from $VALIDATOR --home $PROVIDER_HOME --keyring-backend test -b block -y
+	--chain-id $PROVIDER_CHAIN_ID --node tcp://$PROVIDER_RPC_LADDR --from $VALIDATOR --home $PROVIDER_HOME --keyring-backend test -b block -y
 sleep 1
 
 # Vote yes to proposal
-./$PROVIDER_BINARY tx gov vote 1 yes --from $VALIDATOR --chain-id $PROVIDER_CHAIN_ID --home $PROVIDER_HOME -b block -y --keyring-backend test
+./$PROVIDER_BINARY tx gov vote 1 yes --from $VALIDATOR --chain-id $PROVIDER_CHAIN_ID --node tcp://$PROVIDER_RPC_LADDR --home $PROVIDER_HOME -b block -y --keyring-backend test
 sleep 5
