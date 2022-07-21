@@ -65,7 +65,6 @@ sed -i -r "/node =/ s/= .*/= \"tcp:\/\/${CONSUMER_RPC_LADDR}\"/" $CONSUMER_HOME/
        --trace \
        &> $CONSUMER_HOME/logs &
         
-# TODO: Think about nicer way to make sure chain is up and running (producing block)
 sleep 10
 
 ######################################HERMES###################################

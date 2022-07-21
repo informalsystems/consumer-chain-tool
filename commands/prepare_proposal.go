@@ -45,7 +45,7 @@ func getPrepareCommandUsage() string {
 func getPrepareCommandExample() string {
 	return fmt.Sprintf("%s %s %s %s %s %s %s %s %s %s %s %s",
 		ToolName, PrepareProposalCmdName, "$HOME/wasm_contracts", "wasm", "wasm1ykqt29d4ekemh5pc0d2wdayxye8yqupttf6vyz", "$HOME/tool_output_step1",
-		"\"Create a chain\"", "\"Gonna be a great chain\"", "1", "1", "2022-06-01T09:10:00.000000000-00:00", "10000001stake")
+		"\"Create a chain\"", "\"Gonna be a great chain\"", "4", "0", "2022-06-01T09:10:00.000000000-00:00", "10000001stake")
 }
 
 func getPrepareProposalLongDesc() string {
@@ -53,7 +53,6 @@ func getPrepareProposalLongDesc() string {
 		ProposalTitle, ProposalDescription, ProposalRevisionHeight, ProposalRevisionNumber, ProposalSpawnTime, ProposalDeposit)
 }
 
-// TODO: proposalRevisionHeight and proposalSpawnTime are only passed to shell script so there is no need to make them int and time.Time?
 type PrepareProposalArgs struct {
 	smartContractsLocation string
 	consumerChainId        string
@@ -168,6 +167,6 @@ Command arguments:
     %s - Proposal description. It should contain the publicly available link where the results of this command will be placed.
     %s - The proposal revision height
     %s - The proposal revision number
-    %s - The desired time of consumer chain start in the yyyy-MM-ddTHH:mm:ss.fffffffff-zz:zz format (e.g. 2022-06-01T09:10:00.000000000-00:00). TODO: how to give better format?
+    %s - The desired time of consumer chain start in the yyyy-MM-ddTHH:mm:ss.fffffffff-zz:zz format (e.g. 2022-06-01T09:10:00.000000000-00:00).
     %s - The amount of tokens for the initial proposal deposit.`
 )

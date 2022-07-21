@@ -45,7 +45,6 @@ sleep 1
 	--address tcp://${NODE_IP}:26655 \
 	--p2p.laddr tcp://${NODE_IP}:26656 \
 	--grpc-web.enable=false &> $PROVIDER_HOME/logs &
-# TODO: Think about nicer way to make sure chain is up and running (producing block)
 sleep 10
 
 # Build consumer chain proposal file
@@ -58,8 +57,8 @@ tee $PROVIDER_HOME/consumer-proposal.json<<EOF
         "revision_number": 0,
         "revision_height": 4
     },
-    "genesis_hash": "5e637f4dbc6d6fb4b950ee259b13594deebfd7f92c68644d1b2264f2daa1b9df",
-    "binary_hash": "7090c745224f2f696aaca546f2863591807b897edf33b69251b7696a2ec236fc",
+    "genesis_hash": "8beb03cf0d59d5c77f0521eaf169311f7ea442ca55894c9c9b8bc58d52806e7a",
+    "binary_hash": "f3414a11bf4ef5dbd1e65fa341d1ece5d8b7b139f648edd0d2513e4c168a859d",
     "spawn_time": "2022-06-01T09:10:00.000000000-00:00", 
     "deposit": "10000001stake"
 }

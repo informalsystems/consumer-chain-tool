@@ -16,29 +16,29 @@ PROPOSAL_SPAWN_TIME="${10}"
 
 # Delete all generated data.
  clean_up () {
-   rm -f $TOOL_OUTPUT/proposal_info.json
+   rm -f "$TOOL_OUTPUT"/proposal_info.json
  } 
  trap clean_up EXIT
 
 if [ "$CREATE_OUTPUT_SUBFOLDER" = "true" ]; 
 then
-  TOOL_OUTPUT=$TOOL_OUTPUT"/$(date +"%Y-%m-%d_%H-%M-%S")"
+  TOOL_OUTPUT="$TOOL_OUTPUT"/$(date +"%Y-%m-%d_%H-%M-%S")
 fi
-LOG="$TOOL_OUTPUT/log_file.txt"
+LOG="$TOOL_OUTPUT"/log_file.txt
 
 # Create directories if they don't exist.
-mkdir -p $TOOL_OUTPUT
+mkdir -p "$TOOL_OUTPUT"
 
 echo "Generating files and hashes for validation..."
-if ! bash prepare_proposal_inputs.sh $TOOL_INPUT $CONSUMER_CHAIN_ID $CONSUMER_CHAIN_MULTISIG_ADDRESS $CONSUMER_CHAIN_BINARY $WASM_BINARY $TOOL_OUTPUT $PROPOSAL_SPAWN_TIME;
+if ! bash prepare_proposal_inputs.sh "$TOOL_INPUT" "$CONSUMER_CHAIN_ID" $CONSUMER_CHAIN_MULTISIG_ADDRESS $CONSUMER_CHAIN_BINARY $WASM_BINARY "$TOOL_OUTPUT" $PROPOSAL_SPAWN_TIME;
 then
   echo "Error while preparing proposal data! Verify proposal failed. Please check the $LOG for more details."
   exit 1
 fi
 
 echo "Validating genesis and binary hashes..."
-GENESIS_HASH=$(jq -r ".genesis_hash" $TOOL_OUTPUT/sha256hashes.json)
-BINARY_HASH=$(jq -r ".binary_hash" $TOOL_OUTPUT/sha256hashes.json)
+GENESIS_HASH=$(jq -r ".genesis_hash" "$TOOL_OUTPUT"/sha256hashes.json)
+BINARY_HASH=$(jq -r ".binary_hash" "$TOOL_OUTPUT"/sha256hashes.json)
 
 valid=true  
 
