@@ -1,8 +1,7 @@
 #!/bin/bash
 set -eu
 
-#bash verify_proposal.sh $HOME/wasm_contracts wasm wasm1ykqt29d4ekemh5pc0d2wdayxye8yqupttf6vyz wasmd_consumer wasmd $HOME/tool_output_step2 true 5c5a82f958621228e704c0a00bb591386c9f891f8bfadb1a34b4c15114174d99 bbe2de71aacd5af0d4a98118ede4911b7993f447a07c773f9c7c6fe7d2d005ca 2022-06-01T09:10:00Z
-
+PREPARE_INPUTS_SCRIPT="$0"
 TOOL_INPUT="$1"
 CONSUMER_CHAIN_ID="$2"
 CONSUMER_CHAIN_MULTISIG_ADDRESS="$3"
@@ -30,7 +29,7 @@ LOG="$TOOL_OUTPUT"/log_file.txt
 mkdir -p "$TOOL_OUTPUT"
 
 echo "Generating files and hashes for validation..."
-if ! bash prepare_proposal_inputs.sh "$TOOL_INPUT" "$CONSUMER_CHAIN_ID" $CONSUMER_CHAIN_MULTISIG_ADDRESS $CONSUMER_CHAIN_BINARY $WASM_BINARY "$TOOL_OUTPUT" $PROPOSAL_SPAWN_TIME;
+if ! bash -c "$PREPARE_INPUTS_SCRIPT" "$TOOL_INPUT" "$CONSUMER_CHAIN_ID" $CONSUMER_CHAIN_MULTISIG_ADDRESS $CONSUMER_CHAIN_BINARY $WASM_BINARY "$TOOL_OUTPUT" $PROPOSAL_SPAWN_TIME;
 then
   echo "Error while preparing proposal data! Verify proposal failed. Please check the $LOG for more details."
   exit 1

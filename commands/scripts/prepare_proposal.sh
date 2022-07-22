@@ -1,8 +1,7 @@
 #!/bin/bash
 set -eu
 
-#bash prepare_proposal.sh $HOME/wasm_contracts wasm wasm1ykqt29d4ekemh5pc0d2wdayxye8yqupttf6vyz $HOME/tool_output_step1 "Create a chain" "Gonna be a great chain" 1 1 2022-06-01T09:10:00.000000000-00:00 10000001stake
-
+PREPARE_INPUTS_SCRIPT="$0"
 TOOL_INPUT="$1"
 CONSUMER_CHAIN_ID="$2"
 CONSUMER_CHAIN_MULTISIG_ADDRESS="$3"
@@ -26,7 +25,7 @@ clean_up () {
 trap clean_up EXIT
 
 echo "Generating files and hashes..."
-if ! bash prepare_proposal_inputs.sh "$TOOL_INPUT" "$CONSUMER_CHAIN_ID" "$CONSUMER_CHAIN_MULTISIG_ADDRESS" "$CONSUMER_CHAIN_BINARY" "$WASM_BINARY" "$TOOL_OUTPUT" "$PROPOSAL_SPAWN_TIME";
+if ! bash -c "$PREPARE_INPUTS_SCRIPT" "$TOOL_INPUT" "$CONSUMER_CHAIN_ID" "$CONSUMER_CHAIN_MULTISIG_ADDRESS" "$CONSUMER_CHAIN_BINARY" "$WASM_BINARY" "$TOOL_OUTPUT" "$PROPOSAL_SPAWN_TIME";
 then
     echo "Error while preparing proposal data! Please check the $LOG for more details."
     exit 1
@@ -36,7 +35,7 @@ fi
 
 #TODO filter only *.rs files, they might be in different folders/subfolders, some malicious files can be added, etc.
 # not sure if it really helps, since they can add malicious things afterwards
-cp -r "$WASM_CONTRACTS_SOURCES" "$TOOL_OUTPUT"/contracts
+#cp -r "$WASM_CONTRACTS_SOURCES" "$TOOL_OUTPUT"/contracts
 
 #################################### CREATE PROPOSAL JSON #############################
 

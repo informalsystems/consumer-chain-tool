@@ -22,7 +22,7 @@ func NewPrepareProposalCommand() *cobra.Command {
 				return err
 			}
 
-			bashCmd := exec.Command("/bin/bash", "prepare_proposal.sh",
+			bashCmd := exec.Command("/bin/bash", "-c", prepareProposalScript, prepareProposalInputsScript,
 				inputs.smartContractsLocation, inputs.consumerChainId, inputs.multisigAddress,
 				inputs.toolOutputLocation, inputs.proposalTitle, inputs.proposalDescription,
 				inputs.proposalRevisionHeight, inputs.proposalRevisionNumber, inputs.proposalSpawnTime, inputs.proposalDeposit)

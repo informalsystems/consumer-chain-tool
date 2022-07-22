@@ -21,7 +21,7 @@ func NewFinalizeGenesisCommand() *cobra.Command {
 				return err
 			}
 
-			bashCmd := exec.Command("/bin/bash", "finalize_genesis.sh",
+			bashCmd := exec.Command("/bin/bash", "-c", finalizeGenesisScript, verifyProposalScript, prepareProposalInputsScript,
 				inputs.smartContractsLocation, inputs.consumerChainId, inputs.multisigAddress,
 				inputs.toolOutputLocation, inputs.proposalId, inputs.providerNodeAddress, inputs.providerBinaryPath)
 

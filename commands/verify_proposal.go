@@ -22,7 +22,7 @@ func NewVerifyProposalCommand() *cobra.Command {
 				return err
 			}
 
-			bashCmd := exec.Command("/bin/bash", "verify_proposal.sh",
+			bashCmd := exec.Command("/bin/bash", "-c", verifyProposalScript, prepareProposalInputsScript,
 				inputs.smartContractsLocation, inputs.consumerChainId, inputs.multisigAddress,
 				ConsumerBinary, CosmWasmBinary, inputs.toolOutputLocation, "true", // true for create output subdirectory
 				inputs.proposalGenesisHash, inputs.proposalBinaryHash, inputs.proposalSpawnTime)

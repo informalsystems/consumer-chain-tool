@@ -2,6 +2,7 @@ package commands
 
 import (
 	"bufio"
+	_ "embed"
 	"fmt"
 	"log"
 	"os"
@@ -36,6 +37,18 @@ const (
 	ProviderNodeAddress           = "provider-node-address"
 	ProviderBinaryPath            = "provider-binary-path"
 )
+
+//go:embed scripts/prepare_proposal.sh
+var prepareProposalScript string
+
+//go:embed scripts/prepare_proposal_inputs.sh
+var prepareProposalInputsScript string
+
+//go:embed scripts/verify_proposal.sh
+var verifyProposalScript string
+
+//go:embed scripts/finalize_genesis.sh
+var finalizeGenesisScript string
 
 func init() {
 	cobra.EnableCommandSorting = false

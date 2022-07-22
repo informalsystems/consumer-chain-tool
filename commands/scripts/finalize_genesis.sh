@@ -1,15 +1,15 @@
 #!/bin/bash
 set -eu
 
-#bash finalize_genesis.sh $HOME/wasm_contracts wasm wasm1ykqt29d4ekemh5pc0d2wdayxye8yqupttf6vyz $HOME/tool_output_step2 1 "tcp://localhost:26658" "$HOME/cosmwasm_consumer/interchain-security-pd"
-
-WASM_CONTRACTS="$1" #TODO: once SC compiling is solved, it should point to the output of step1.sh where source code of SCs are stored
-CONSUMER_CHAIN_ID="$2"
-CONSUMER_CHAIN_MULTISIG_ADDRESS="$3"
-TOOL_OUTPUT_DIR="$4"
-PROPOSAL_ID="$5"
-PROVIDER_NODE_ADDRESS="$6"
-PROVIDER_BINARY_PATH="$7"
+VERIFY_PROPOSAL_SCRIPT="$0"
+PREPARE_INPUTS_SCRIPT="$1"
+WASM_CONTRACTS="$2" #TODO: once SC compiling is solved, it should point to the output of step1.sh where source code of SCs are stored
+CONSUMER_CHAIN_ID="$3"
+CONSUMER_CHAIN_MULTISIG_ADDRESS="$4"
+TOOL_OUTPUT_DIR="$5"
+PROPOSAL_ID="$6"
+PROVIDER_NODE_ADDRESS="$7"
+PROVIDER_BINARY_PATH="$8"
 CONSUMER_CHAIN_BINARY="wasmd_consumer"
 WASM_BINARY="wasmd"
 TOOL_OUTPUT="$TOOL_OUTPUT_DIR"/$(date +"%Y-%m-%d_%H-%M-%S")
@@ -44,7 +44,7 @@ then
   exit 1
 fi
 
-if ! bash verify_proposal.sh "$WASM_CONTRACTS" "$CONSUMER_CHAIN_ID" $CONSUMER_CHAIN_MULTISIG_ADDRESS $CONSUMER_CHAIN_BINARY $WASM_BINARY "$TOOL_OUTPUT" $CREATE_OUTPUT_SUBFOLDER $PROPOSAL_GENESIS_HASH $PROPOSAL_BINARY_HASH $PROPOSAL_SPAWN_TIME; 
+if ! bash -c "$VERIFY_PROPOSAL_SCRIPT" "$PREPARE_INPUTS_SCRIPT" "$WASM_CONTRACTS" "$CONSUMER_CHAIN_ID" $CONSUMER_CHAIN_MULTISIG_ADDRESS $CONSUMER_CHAIN_BINARY $WASM_BINARY "$TOOL_OUTPUT" $CREATE_OUTPUT_SUBFOLDER $PROPOSAL_GENESIS_HASH $PROPOSAL_BINARY_HASH $PROPOSAL_SPAWN_TIME; 
 then
 	echo "Error while verifying proposal! Finalize genesis failed. Please check the $LOG for more details."
 	exit 1
