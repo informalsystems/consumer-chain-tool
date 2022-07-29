@@ -16,15 +16,14 @@ const (
 	PrepareProposalCmdName        = "prepare-proposal"
 	VerifyProposalCmdName         = "verify-proposal"
 	FinalizeGenesisCmdName        = "finalize-genesis"
-	PrepareProposalCmdParamsCount = 10
-	VerifyProposalCmdParamsCount  = 7
-	FinalizeGenesisCmdParamsCount = 7
+	PrepareProposalCmdParamsCount = 8
+	VerifyProposalCmdParamsCount  = 5
+	FinalizeGenesisCmdParamsCount = 4
 	ConsumerBinary                = "wasmd_consumer"
 	CosmWasmBinary                = "wasmd"
 	SmartContractsLocation        = "smart-contracts-location"
 	ConsumerChainId               = "consumer-chain-id"
 	MultisigAddress               = "multisig-address"
-	ToolOutputLocation            = "tool-output-location"
 	ProposalId                    = "proposal-id"
 	ProposalTitle                 = "proposal-title"
 	ProposalDescription           = "proposal-description"
@@ -35,7 +34,9 @@ const (
 	ProposalGenesisHash           = "proposal-genesis-hash"
 	ProposalBinaryHash            = "proposal-binary-hash"
 	ProviderNodeAddress           = "provider-node-address"
-	ProviderBinaryPath            = "provider-binary-path"
+	ContractBinariesLocation      = "/contract_binaries"
+	ToolOutputLocation            = "/tool_output"
+	ProviderBinaryPath            = "/go/bin/interchain-security-pd"
 )
 
 //go:embed scripts/prepare_proposal.sh

@@ -23,7 +23,7 @@ func NewVerifyProposalCommand() *cobra.Command {
 			}
 
 			bashCmd := exec.Command("/bin/bash", "-c", verifyProposalScript, prepareProposalInputsScript,
-				inputs.smartContractsLocation, inputs.consumerChainId, inputs.multisigAddress,
+				inputs.contractBinariesLocation, inputs.consumerChainId, inputs.multisigAddress,
 				ConsumerBinary, CosmWasmBinary, inputs.toolOutputLocation, "true", // true for create output subdirectory
 				inputs.proposalGenesisHash, inputs.proposalBinaryHash, inputs.proposalSpawnTime)
 
@@ -37,30 +37,31 @@ func NewVerifyProposalCommand() *cobra.Command {
 }
 
 func getVerifyCommandUsage() string {
-	return fmt.Sprintf("%s [%s] [%s] [%s] [%s] [%s] [%s] [%s]",
-		VerifyProposalCmdName, SmartContractsLocation, ConsumerChainId,
-		MultisigAddress, ToolOutputLocation, ProposalGenesisHash, ProposalBinaryHash, ProposalSpawnTime)
+	return fmt.Sprintf("%s [%s] [%s] [%s] [%s] [%s]",
+		VerifyProposalCmdName, ConsumerChainId, MultisigAddress,
+		ProposalGenesisHash, ProposalBinaryHash, ProposalSpawnTime)
 }
 
 func getVerifyCommandExample() string {
-	return fmt.Sprintf("%s %s %s %s %s %s %s %s %s",
-		ToolName, VerifyProposalCmdName, "$HOME/wasm_contracts", "wasm", "wasm1ykqt29d4ekemh5pc0d2wdayxye8yqupttf6vyz",
-		"$HOME/tool_output_step2", "8beb03cf0d59d5c77f0521eaf169311f7ea442ca55894c9c9b8bc58d52806e7a", "f3414a11bf4ef5dbd1e65fa341d1ece5d8b7b139f648edd0d2513e4c168a859d", "2022-06-01T09:10:00Z")
+	return fmt.Sprintf("%s %s %s %s %s %s %s",
+		ToolName, VerifyProposalCmdName, "wasm", "wasm1ykqt29d4ekemh5pc0d2wdayxye8yqupttf6vyz",
+		"8beb03cf0d59d5c77f0521eaf169311f7ea442ca55894c9c9b8bc58d52806e7a",
+		"f3414a11bf4ef5dbd1e65fa341d1ece5d8b7b139f648edd0d2513e4c168a859d", "2022-06-01T09:10:00Z")
 }
 
 func getVerifyProposalLongDesc() string {
-	return fmt.Sprintf(VerifyProposalLongDesc, SmartContractsLocation, ConsumerChainId,
-		MultisigAddress, ToolOutputLocation, ProposalGenesisHash, ProposalBinaryHash, ProposalSpawnTime)
+	return fmt.Sprintf(VerifyProposalLongDesc, ConsumerChainId, MultisigAddress,
+		ProposalGenesisHash, ProposalBinaryHash, ProposalSpawnTime)
 }
 
 type VerifyProposalArgs struct {
-	smartContractsLocation string
-	consumerChainId        string
-	multisigAddress        string
-	toolOutputLocation     string
-	proposalGenesisHash    string
-	proposalBinaryHash     string
-	proposalSpawnTime      string
+	contractBinariesLocation string
+	consumerChainId          string
+	multisigAddress          string
+	toolOutputLocation       string
+	proposalGenesisHash      string
+	proposalBinaryHash       string
+	proposalSpawnTime        string
 }
 
 func NewVerifyProposalArgs(args []string) (*VerifyProposalArgs, error) {
@@ -71,49 +72,39 @@ func NewVerifyProposalArgs(args []string) (*VerifyProposalArgs, error) {
 	commandArgs := new(VerifyProposalArgs)
 	var errors []string
 
-	smartContractsLocation := strings.TrimSpace(args[0])
-	if IsValidInputPath(smartContractsLocation) {
-		commandArgs.smartContractsLocation = smartContractsLocation
-	} else {
-		errors = append(errors, fmt.Sprintf("Provided input path '%s' is not a valid directory.", smartContractsLocation))
-	}
+	commandArgs.contractBinariesLocation = ContractBinariesLocation
 
-	consumerChainId := strings.TrimSpace(args[1])
+	consumerChainId := strings.TrimSpace(args[0])
 	if IsValidString(consumerChainId) {
 		commandArgs.consumerChainId = consumerChainId
 	} else {
 		errors = append(errors, fmt.Sprintf("Provided chain-id '%s' is not valid.", consumerChainId))
 	}
 
-	multisigAddress := strings.TrimSpace(args[2])
+	multisigAddress := strings.TrimSpace(args[1])
 	if IsValidString(multisigAddress) {
 		commandArgs.multisigAddress = multisigAddress
 	} else {
 		errors = append(errors, fmt.Sprintf("Provided multisig address '%s' is not valid.", multisigAddress))
 	}
 
-	toolOutputLocation := strings.TrimSpace(args[3])
-	if IsValidOutputPath(toolOutputLocation) {
-		commandArgs.toolOutputLocation = toolOutputLocation
-	} else {
-		errors = append(errors, fmt.Sprintf("Provided output path '%s' is not a valid directory.", toolOutputLocation))
-	}
+	commandArgs.toolOutputLocation = ToolOutputLocation
 
-	proposalGenesisHash := strings.TrimSpace(args[4])
+	proposalGenesisHash := strings.TrimSpace(args[2])
 	if IsValidString(proposalGenesisHash) {
 		commandArgs.proposalGenesisHash = proposalGenesisHash
 	} else {
 		errors = append(errors, fmt.Sprintf("Provided proposal genesis hash '%s' is not valid.", proposalGenesisHash))
 	}
 
-	proposalBinaryHash := strings.TrimSpace(args[5])
+	proposalBinaryHash := strings.TrimSpace(args[3])
 	if IsValidString(proposalBinaryHash) {
 		commandArgs.proposalBinaryHash = proposalBinaryHash
 	} else {
 		errors = append(errors, fmt.Sprintf("Provided proposal binary hash '%s' is not valid.", proposalBinaryHash))
 	}
 
-	proposalSpawnTime := strings.TrimSpace(args[6])
+	proposalSpawnTime := strings.TrimSpace(args[4])
 	if spawnTime, isValid := IsValidDateTime(proposalSpawnTime); isValid {
 		commandArgs.proposalSpawnTime = spawnTime.Format(time.RFC3339Nano)
 	} else {
@@ -132,10 +123,8 @@ const (
 It then queries the 'create consumer chain' proposal from the provider chain to obtain the hashes. If the hashes from the proposal match the recalculated ones, then the resulting genesis.json file contains the smart contracts provided to the input of this command.
 
 Command arguments:
-    %s - The location of the directory that contains CosmWasm smart contracts source code. TODO: add details about subdirectories structure and other things (Cargo.toml etc.)?
     %s - The chain ID of the consumer chain.
     %s - The multi-signature address that will have the permission to instantiate contracts from the set of predeployed codes.
-    %s - The location of the directory where the resulting genesis.json and sha256hashes.json files will be saved.
     %s - The proposal's hash of the genesis file. It can be retrieved by quering a provider chain. 
     %s - The proposal's hash of the consumer binary. It can be retrieved by quering a provider chain.
     %s - The proposal's spawn time. It can be retrieved by quering a provider chain.`

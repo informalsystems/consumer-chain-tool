@@ -23,7 +23,7 @@ LOG="$TOOL_OUTPUT"/log_file.txt
 
 # Delete all generated data.
 clean_up(){
-    killall "$WASM_BINARY" &> /dev/null || true
+    pkill "$WASM_BINARY" &> /dev/null || true
     rm -rf "$WASM_HOME"
     rm -rf "$CONSUMER_HOME"
 }
@@ -98,7 +98,7 @@ for CONTRACT in "$WASM_CONTRACTS"/*.wasm; do
 done
 
 #Stop the chain
-killall ./$WASM_BINARY &> /dev/null || true
+pkill $WASM_BINARY &> /dev/null || true
 sleep 3
 
 #Export genesis state
