@@ -27,7 +27,7 @@ trap clean_up EXIT
 echo "Generating files and hashes..."
 if ! bash -c "$PREPARE_INPUTS_SCRIPT" "$TOOL_INPUT" "$CONSUMER_CHAIN_ID" "$CONSUMER_CHAIN_MULTISIG_ADDRESS" "$CONSUMER_CHAIN_BINARY" "$WASM_BINARY" "$TOOL_OUTPUT" "$PROPOSAL_SPAWN_TIME";
 then
-    echo "Error while preparing proposal data! Please check the $LOG for more details."
+    echo "Error while preparing proposal data! For more details please check the log file in output directory."
     exit 1
 fi
 
@@ -55,4 +55,4 @@ tee "$TOOL_OUTPUT"/proposal.json  &> /dev/null <<EOF
     "deposit": "$PROPOSAL_DEPOSIT"
 }
 EOF
-echo "Output data is saved at $TOOL_OUTPUT"
+echo "Output data is saved at the specified location"

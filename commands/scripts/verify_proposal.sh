@@ -31,7 +31,7 @@ mkdir -p "$TOOL_OUTPUT"
 echo "Generating files and hashes for validation..."
 if ! bash -c "$PREPARE_INPUTS_SCRIPT" "$TOOL_INPUT" "$CONSUMER_CHAIN_ID" $CONSUMER_CHAIN_MULTISIG_ADDRESS $CONSUMER_CHAIN_BINARY $WASM_BINARY "$TOOL_OUTPUT" $PROPOSAL_SPAWN_TIME;
 then
-  echo "Error while preparing proposal data! Verify proposal failed. Please check the $LOG for more details."
+  echo "Error while preparing proposal data! Verify proposal failed. For more details please check the log file in output directory."
   exit 1
 fi
 

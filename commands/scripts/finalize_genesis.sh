@@ -30,7 +30,7 @@ mkdir -p "$TOOL_OUTPUT"
 # Query the proposal to get the hashes from the chain
 if ! "$PROVIDER_BINARY_PATH" q gov proposal $PROPOSAL_ID --node "$PROVIDER_NODE_ADDRESS" --output json > "$TOOL_OUTPUT"/proposal_info.json; 
 then
-  echo "Failed to query proposal with id $PROPOSAL_ID! Verify proposal failed. Please check the $LOG for more details."
+  echo "Failed to query proposal with id $PROPOSAL_ID! Verify proposal failed. For more details please check the log file in output directory."
   exit 1
 fi
 
@@ -46,18 +46,21 @@ fi
 
 if ! bash -c "$VERIFY_PROPOSAL_SCRIPT" "$PREPARE_INPUTS_SCRIPT" "$WASM_CONTRACTS" "$CONSUMER_CHAIN_ID" $CONSUMER_CHAIN_MULTISIG_ADDRESS $CONSUMER_CHAIN_BINARY $WASM_BINARY "$TOOL_OUTPUT" $CREATE_OUTPUT_SUBFOLDER $PROPOSAL_GENESIS_HASH $PROPOSAL_BINARY_HASH $PROPOSAL_SPAWN_TIME; 
 then
-	echo "Error while verifying proposal! Finalize genesis failed. Please check the $LOG for more details."
+	echo "Error while verifying proposal! Finalize genesis failed. For more details please check the log file in output directory."
 	exit 1
 fi
 
 if ! "$PROVIDER_BINARY_PATH" q provider consumer-genesis "$CONSUMER_CHAIN_ID" --node "$PROVIDER_NODE_ADDRESS" --output json > "$TOOL_OUTPUT"/consumer_section.json; 
 then
-	echo "Failed to get consumer genesis for the chain-id '$CONSUMER_CHAIN_ID'! Finalize genesis failed. Please check the $LOG for more details."
+	echo "Failed to get consumer genesis for the chain-id '$CONSUMER_CHAIN_ID'! Finalize genesis failed. For more details please check the log file in output directory."
 	exit 1
 fi
 
 jq -s '.[0].app_state.ccvconsumer = .[1] | .[0]' "$TOOL_OUTPUT"/genesis.json "$TOOL_OUTPUT"/consumer_section.json > "$TOOL_OUTPUT"/genesis_consumer.json && \
 	mv "$TOOL_OUTPUT"/genesis_consumer.json "$TOOL_OUTPUT"/genesis.json
 
+# Copy consumer binary to the output folder
+cp ./$CONSUMER_CHAIN_BINARY "$TOOL_OUTPUT"/$CONSUMER_CHAIN_BINARY
+
 echo "Finalize genesis succeded!"
-echo "Output data is saved at $TOOL_OUTPUT"
+echo "Output data is saved at the specified location"
