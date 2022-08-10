@@ -7,82 +7,65 @@ The purpose of the tool is to produce an output in the form of proposal and gene
 
 Note: parameters of the verify-proposal and finalize-genesis commands must have the same values as the corresponding parameters of the prepare-proposal command, e.g. if the CHAIN_ID in the prepare-proposal is 'wasm' then the CHAIN_ID in the verify-proposal must be 'wasm' as well. 
 
+## Prerequisits
+Running the tool requires Docker to be installed. 
+
 ## prepare-proposal command
 ```
-docker run --rm \
-    -v <LOCATION_OF_SMART_CONTRACTS_BINARIES>:/contract_binaries \
-    -v <TOOL_OUTPUT_LOCATION>:/tool_output \
-    ics/cli consumer-chain-tool prepare-proposal <CHAIN_ID> <MULTISIG_ADDRESS> <PROPOSAL_TITLE> <PROPOSAL_DESCRIPTION> <REVISION_NUMBER> <REVISION_HEIGHT> <SPAWN_TIME> <DEPOSIT>
+consumer-chain-tool prepare-proposal [CONTRACT-BINARIES-LOCATION] [CONSUMER-CHAIN-ID] [MULTISIG-ADDRESS] [TOOL-OUTPUT-LOCATION] [PROPOSAL-TITLE] [PROPOSAL-DESCRIPTION] [PROPOSAL-REVISION-HEIGHT] [PROPOSAL-REVISION-NUMBER] [PROPOSAL-SPAWN-TIME] [PROPOSAL-DEPOSIT]
 ```
 
 Input parameters:
-- LOCATION_OF_SMART_CONTRACTS_BINARIES - The location of the directory that contains the compiled smart contracts .wasm binaries.
-- TOOL_OUTPUT_LOCATION - The location of the directory where the resulting genesis.json and proposal.json will be saved.
-- CHAIN_ID - The proposed chain-id of the new consumer chain must be different from all the other consumer chain ids of the executing provider chain.
-- MULTISIG_ADDRESS - The multi-signature address that will have the permission to instantiate the contracts from the set of pre-deployed codes.
-- PROPOSAL_TITLE - The title of the proposal.
-- PROPOSAL_DESCRIPTION - The proposal description should contain the publicly available link where the contract's source code and the output of this command are uploaded by the proposer.
-- REVISION_NUMBER - The revision that the client is currently on.
-- REVISION_HEIGHT - The height within the given revision.
-- SPAWN_TIME - The time on the provider chain at which the consumer chain genesis is finalized and all the validators will be responsible for starting heir consumer chain validator node. 
-- DEPOSIT - The amount of tokens for the initial proposal deposit.
+- CONTRACT-BINARIES-LOCATION - The location of the directory that contains the compiled smart contracts .wasm binaries.
+- CONSUMER-CHAIN-ID - The proposed chain-id of the new consumer chain must be different from all the other consumer chain ids of the executing provider chain.
+- MULTISIG-ADDRESS - The multi-signature address that will have the permission to instantiate the contracts from the set of pre-deployed codes.
+- TOOL-OUTPUT-LOCATION - The location of the directory where the resulting genesis.json and proposal.json will be saved.
+- PROPOSAL-TITLE - The title of the proposal.
+- PROPOSAL-DESCRIPTION - The proposal description should contain the publicly available link where the contract's source code and the output of this command are uploaded by the proposer.
+- PROPOSAL-REVISION-HEIGHT - The height within the given revision.
+- PROPOSAL-REVISION-NUMBER - The revision that the client is currently on.
+- PROPOSAL-SPAWN-TIME - The time on the provider chain at which the consumer chain genesis is finalized and all the validators will be responsible for starting heir consumer chain validator node. 
+- PROPOSAL-DEPOSIT - The amount of tokens for the initial proposal deposit.
 
 Examlpe: 
 ```
-docker run --rm \
-	-v $HOME/contract_binaries:/contract_binaries \
-	-v $HOME/cli_tool_output:/tool_output \
-	ics/cli consumer-chain-tool prepare-proposal wasm wasm1ykqt29d4ekemh5pc0d2wdayxye8yqupttf6vyz "CosmWasm consumer" "Contracts code location: https://mysharedlocation/proposal_data" 4 0 2022-06-01T09:10:00Z 10000001stake
+consumer-chain-tool prepare-proposal $HOME/contract_binaries wasm wasm1ykqt29d4ekemh5pc0d2wdayxye8yqupttf6vyz $HOME/cli_tool_output "CosmWasm consumer" "Contracts code location: https://mysharedlocation/proposal_data" 4 0 2022-06-01T09:10:00Z 10000001stake
 ```
 
 ## verify-proposal command
 ```
-docker run --rm \
-    -v <LOCATION_OF_SMART_CONTRACTS_BINARIES>:/contract_binaries \
-    -v <TOOL_OUTPUT_LOCATION>:/tool_output \
-    ics/cli consumer-chain-tool verify-proposal <CHAIN_ID> <MULTISIG_ADDRESS> <GENESIS_HASH> <CONSUMER_BINARY_HASH> <SPAWN_TIME> 
+consumer-chain-tool verify-proposal [CONTRACT-BINARIES-LOCATION] [CONSUMER-CHAIN-ID] [MULTISIG-ADDRESS] [TOOL-OUTPUT-LOCATION] [PROPOSAL-GENESIS-HASH] [PROPOSAL-BINARY-HASH] [PROPOSAL-SPAWN-TIME]
 ```
 
 Input parameters:
-- LOCATION_OF_SMART_CONTRACTS_BINARIES - The location of the directory that contains the compiled smart contracts .wasm binaries.
-- TOOL_OUTPUT_LOCATION - TThe location of the directory where the verification data will be saved.
-- CHAIN_ID - The proposed chain-id of the new consumer chain must be different from all the other consumer chain ids of the executing provider chain.
-- MULTISIG_ADDRESS - The multi-signature address that will have the permission to instantiate the contracts from the set of pre-deployed codes.
-- GENESIS_HASH - The hash of the genesis file can be obtained by querying the proposal previously submitted to the provider chain.
-- CONSUMER_BINARY_HASH - The hash of the consumer binary can be obtained by querying the proposal previously submitted to the provider chain.
-- SPAWN_TIME - The time on the provider chain at which the consumer chain genesis is finalized and all the validators will be responsible for starting their consumer chain validator node. 
+- CONTRACT-BINARIES-LOCATION - The location of the directory that contains the compiled smart contracts .wasm binaries.
+- CONSUMER-CHAIN-ID - The proposed chain-id of the new consumer chain must be different from all the other consumer chain ids of the executing provider chain.
+- MULTISIG-ADDRESS - The multi-signature address that will have the permission to instantiate the contracts from the set of pre-deployed codes.
+- TOOL-OUTPUT-LOCATION - The location of the directory where the verification data will be saved.
+- PROPOSAL-GENESIS-HASH - The hash of the genesis file can be obtained by querying the proposal previously submitted to the provider chain.
+- PROPOSAL-BINARY-HASH - The hash of the consumer binary can be obtained by querying the proposal previously submitted to the provider chain.
+- PROPOSAL-SPAWN-TIME - The time on the provider chain at which the consumer chain genesis is finalized and all the validators will be responsible for starting their consumer chain validator node. 
 
 Example:
 ```
-docker run --rm \
-	-v $HOME/contract_binaries:/contract_binaries \
-	-v $HOME/cli_tool_output:/tool_output \
-	ics/cli consumer-chain-tool verify-proposal wasm wasm1ykqt29d4ekemh5pc0d2wdayxye8yqupttf6vyz 5e637f4dbc6d6fb4b950ee259b13594deebfd7f92c68644d1b2264f2daa1b9df 09184916f3e85aa6fa24d3c12f1e5465af2214f13db265a52fa9f4617146dea5 2022-06-01T09:10:00Z
+consumer-chain-tool verify-proposal $HOME/contract_binaries wasm wasm1ykqt29d4ekemh5pc0d2wdayxye8yqupttf6vyz $HOME/cli_tool_output 519df96a862c30f53e67b1277e6834ab4bd59dfdd08c781d1b7cf3813080fb28 09184916f3e85aa6fa24d3c12f1e5465af2214f13db265a52fa9f4617146dea5 2022-06-01T09:10:00Z
 ```
 
 ## finalize-genesis command
 ```
-docker run --rm --network="host" \
-    -v <LOCATION_OF_SMART_CONTRACTS_BINARIES>:/contract_binaries \
-    -v <PROVIDER_BINARY_PATH>:/go/bin/interchain-security-pd \
-    -v <TOOL_OUTPUT_LOCATION>:/tool_output \
-    ics/cli consumer-chain-tool finalize-genesis <CHAIN_ID> <MULTISIG_ADDRESS> <PROPOSAL_ID> <PROVIDER_NODE_ADDRESS>
+consumer-chain-tool finalize-genesis [CONTRACT-BINARIES-LOCATION] [CONSUMER-CHAIN-ID] [MULTISIG-ADDRESS] [TOOL-OUTPUT-LOCATION] [PROPOSAL-ID] [PROVIDER-NODE-ADDRESS] [PROVIDER-BINARY-PATH]
 ```
 
 Input parameters:
-- LOCATION_OF_SMART_CONTRACTS_BINARIES - The location of the directory that contains the compiled smart contracts .wasm binaries.
+- CONTRACT-BINARIES-LOCATION - The location of the directory that contains the compiled smart contracts .wasm binaries.
+- CONSUMER-CHAIN-ID - The proposed chain-id of the new consumer chain must be different from all the other consumer chain ids of the executing provider chain.
+- MULTISIG-ADDRESS - The multi-signature address that will have the permission to instantiate the contracts from the set of pre-deployed codes.
+- TOOL-OUTPUT-LOCATION - The location of the directory where the final genesis.json and consumer binary will be saved. The validators will use the outputs to start the consumer chain.
+- PROPOSAL-ID - The ID of the proposal submitted to the provider chain whose data will be used to verify if the inputs of this command match the ones from the proposal.
+- PROVIDER-NODE-ADDRESS - This represents the address of the provider chain node in the following format: tcp://IP_ADDRESS:PORT_NUMBER. This address is used to query the provider chain to obtain the consumer section for the genesis file.
 - PROVIDER_BINARY_PATH - The path to the provider binary.
-- TOOL_OUTPUT_LOCATION - The location of the directory where the final genesis.json and consumer binary will be saved. The validators will use the outputs to start the consumer chain.
-- CHAIN_ID - The proposed chain-id of the new consumer chain must be different from all the other consumer chain ids of the executing provider chain.
-- MULTISIG_ADDRESS - The multi-signature address that will have the permission to instantiate the contracts from the set of pre-deployed codes.
-- PROPOSAL_ID - The ID of the proposal submitted to the provider chain whose data will be used to verify if the inputs of this command match the ones from the proposal.
-- PROVIDER_NODE_ADDRESS - This represents the address of the provider chain node in the following format: tcp://IP_ADDRESS:PORT_NUMBER. This address is used to query the provider chain to obtain the consumer section for the genesis file.
 
 Example:
 ```
-docker run --rm --network="host" \
-	-v $HOME/contract_binaries:/contract_binaries \
-	-v $HOME/go/src/consumer-chain-tool/gaiad:/go/bin/interchain-security-pd \
-	-v $HOME/cli_tool_output:/tool_output \
-	ics/cli consumer-chain-tool finalize-genesis wasm wasm1ykqt29d4ekemh5pc0d2wdayxye8yqupttf6vyz 1 tcp://ec2-13-40-188-91.eu-west-2.compute.amazonaws.com:1478
+consumer-chain-tool finalize-genesis $HOME/contract_binaries wasm wasm1ykqt29d4ekemh5pc0d2wdayxye8yqupttf6vyz $HOME/cli_tool_output 1 tcp://localhost:26657 $HOME/gaiad
 ```
