@@ -8,7 +8,16 @@ The purpose of the tool is to produce an output in the form of proposal and gene
 Note: parameters of the verify-proposal and finalize-genesis commands must have the same values as the corresponding parameters of the prepare-proposal command, e.g. if the CHAIN_ID in the prepare-proposal is 'wasm' then the CHAIN_ID in the verify-proposal must be 'wasm' as well. 
 
 ## Prerequisits
-Running the tool requires Docker to be installed. 
+1. Running the tool requires Docker and Go to be installed.
+2. Download consumer-chain-tool repo and from the root directory:
+   - Build docker image with the following command:
+    ```
+    docker build -t consumer-chain-tool .
+    ```
+   - Build consumer-chain-tool binary:
+    ```
+    go build
+    ``` 
 
 ## prepare-proposal command
 ```

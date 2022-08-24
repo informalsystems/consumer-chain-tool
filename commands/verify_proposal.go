@@ -25,7 +25,7 @@ SPAWN_TIME="%s"
 docker run --rm \
 -v "$LOCATION_OF_SMART_CONTRACTS_BINARIES":/contract_binaries \
 -v "$TOOL_OUTPUT_LOCATION":/tool_output \
-dusanmaksimovic/consumer-chain-tool:latest sh ./verify_proposal.sh "/contract_binaries" "$CHAIN_ID" "$MULTISIG_ADDRESS" "$CONSUMER_BINARY" "$COSMWASM_BINARY" "/tool_output" "$CREATE_OUTPUT_SUBFOLDER" "$GENESIS_HASH" "$BINARY_HASH" "$SPAWN_TIME"
+consumer-chain-tool:latest sh ./verify_proposal.sh "/contract_binaries" "$CHAIN_ID" "$MULTISIG_ADDRESS" "$CONSUMER_BINARY" "$COSMWASM_BINARY" "/tool_output" "$CREATE_OUTPUT_SUBFOLDER" "$GENESIS_HASH" "$BINARY_HASH" "$SPAWN_TIME"
 `
 
 func NewVerifyProposalCommand() *cobra.Command {
