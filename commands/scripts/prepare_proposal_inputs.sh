@@ -108,7 +108,7 @@ jq -s '.[0].app_state.wasm = .[1].app_state.wasm | .[0]' "$CONSUMER_HOME"/config
 #################################### TIDY GENESIS #####################################
 # //TODO: set parameters of each module in CONSUMER_HOME/genesis_wasm.json
 
-jq --arg e "${GENESIS_TIME}" '.genesis_time = $e | .' "$CONSUMER_HOME"/genesis_wasm.json > "$CONSUMER_HOME"/genesis_1.json
+jq --arg gentime "${GENESIS_TIME}" --arg addr "${MULTISIG_ADDRESS}" '.genesis_time = $gentime | .app_state.wasm.params.code_upload_access.address = $addr | .app_state.wasm.params.code_upload_access.permission = "OnlyAddress" | .' "$CONSUMER_HOME"/genesis_wasm.json > "$CONSUMER_HOME"/genesis_1.json
 
 # Copy genesis to the output folder
 cp "$CONSUMER_HOME"/genesis_1.json "$TOOL_OUTPUT"/genesis.json
