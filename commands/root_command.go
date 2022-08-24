@@ -16,12 +16,12 @@ const (
 	PrepareProposalCmdName        = "prepare-proposal"
 	VerifyProposalCmdName         = "verify-proposal"
 	FinalizeGenesisCmdName        = "finalize-genesis"
-	PrepareProposalCmdParamsCount = 8
-	VerifyProposalCmdParamsCount  = 5
-	FinalizeGenesisCmdParamsCount = 4
+	PrepareProposalCmdParamsCount = 10
+	VerifyProposalCmdParamsCount  = 7
+	FinalizeGenesisCmdParamsCount = 7
 	ConsumerBinary                = "wasmd_consumer"
 	CosmWasmBinary                = "wasmd"
-	SmartContractsLocation        = "smart-contracts-location"
+	ContractBinariesLocation      = "contract-binaries-location"
 	ConsumerChainId               = "consumer-chain-id"
 	MultisigAddress               = "multisig-address"
 	ProposalId                    = "proposal-id"
@@ -34,22 +34,9 @@ const (
 	ProposalGenesisHash           = "proposal-genesis-hash"
 	ProposalBinaryHash            = "proposal-binary-hash"
 	ProviderNodeAddress           = "provider-node-address"
-	ContractBinariesLocation      = "/contract_binaries"
-	ToolOutputLocation            = "/tool_output"
-	ProviderBinaryPath            = "/go/bin/interchain-security-pd"
+	ToolOutputLocation            = "tool-output-location"
+	ProviderBinaryPath            = "provider-binary-path"
 )
-
-//go:embed scripts/prepare_proposal.sh
-var prepareProposalScript string
-
-//go:embed scripts/prepare_proposal_inputs.sh
-var prepareProposalInputsScript string
-
-//go:embed scripts/verify_proposal.sh
-var verifyProposalScript string
-
-//go:embed scripts/finalize_genesis.sh
-var finalizeGenesisScript string
 
 func init() {
 	cobra.EnableCommandSorting = false
@@ -100,9 +87,9 @@ func RunCmdAndPrintOutput(bashCmd *exec.Cmd) {
 
 const (
 	ToolShortDesc = "%s - prepare and verify proposal and genesis file for a new Interchain Security enabled CosmWasm consumer chain"
-	ToolLongDesc  = `The purpose of the tool is to produce output in a form of proposal and genesis files and in that manner simplify the process of starting the CosmWasm consumer chain with the pre-deployed wasm codes. Process of creating output data should be done in following steps:
-    1. The proposer runs prepare-proposal tool command which generates genesis.json file with wasm section containing the pre-deployed codes and proposal.json file which contains hashes of genesis and consumer binary files. Description of a proposal might contain a link to the location from where genesis file, source code of wasm contracts and consumer binary can be downloaded  
-    2. The proposer manually submits the proposal to the provider chain
-    3. Validators optionally can run verify-proposal command of the tool to check if the hash of downloaded genesis matches the one from proposal and decide whether to vote for proposal
-    4. Finally, validators run finalize-genesis command, which generate a final genesis file by adding ccvconsumer section in it. Validators can then use such genesis for running the consumer chain`
+	ToolLongDesc  = `The purpose of the tool is to produce an output in the form of proposal and genesis files. In that way, the process of starting the CosmWasm consumer chain with the pre-deployed smart contract codes is simplified. The process of creating the proposal and genesis data should be done in the following steps:
+	1. The proposer runs a prepare-proposal tool command which generates the genesis.json and proposal.json file. All the sections within the genesis file are populated with the final data, except for the ccvconsumer section, which represents the consumer module. The consumer section will be finalized in a later step. The proposal file contains several fields, among which there are the hashes of the genesis file and consumer binary file which will be used to run the consumer chain. The description field of the proposal file should contain a link to the location from where the tool output and the source code of the wasm contract can be downloaded. 
+	2. After the first step, when the proposal.json is created, the proposer manually submits the 'create consumer chain' proposal to the provider chain.
+	3. After the proposal is submitted, validators and all the interested parties can optionally run a verify-proposal command of the tool to verify the genesis data. This is done mostly to check if the pre-deployed smart contract codes match the source which is uploaded by the proposer. To do so, a user running this command will first download the contract source codes, review them and build them. The built smart contracts will be input for the verify-proposal command. Afterwards, the tool will check if the hash of the regenerated genesis matches the one from the proposal and the user can decide whether to vote for the proposal or not.
+	4. Finally, validators run a finalize-genesis command, which will generate the consumer binary and the final genesis file by adding proper data in ccvconsumer section. Validators can then use this genesis and binary to run the consumer chain. This step also requires for smart contracts to be built and given as a command input.`
 )

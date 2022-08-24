@@ -25,7 +25,6 @@ func IsValidOutputPath(pathStr string) bool {
 	return os.MkdirAll(pathStr, os.ModePerm) == nil
 }
 
-// TODO: should we use regular expressions in this check?
 func IsValidString(input string) bool {
 	return input != ""
 }
@@ -48,7 +47,6 @@ func IsValidDateTime(input string) (time.Time, bool) {
 	return t, true
 }
 
-// TODO: basic validation, expects only one coin and its amount
 func IsValidDeposit(input string) bool {
 	matches := reDecCoin.FindStringSubmatch(input)
 	if matches == nil || len(matches) != 3 {

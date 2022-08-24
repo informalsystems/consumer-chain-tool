@@ -1,13 +1,13 @@
 #!/bin/bash
 set -eu
 
-WASM_CONTRACTS="$0"
-CHAIN_ID="$1"
-MULTISIG_ADDRESS="$2"
-CONSUMER_BINARY="$3"
-WASM_BINARY="$4"
-TOOL_OUTPUT="$5"
-GENESIS_TIME="$6"
+WASM_CONTRACTS="$1"
+CHAIN_ID="$2"
+MULTISIG_ADDRESS="$3"
+CONSUMER_BINARY="$4"
+WASM_BINARY="$5"
+TOOL_OUTPUT="$6"
+GENESIS_TIME="$7"
 MONIKER="moniker"
 VALIDATOR="validator"
 KEYRING="--keyring-backend test"
@@ -34,9 +34,6 @@ clean_up
 
 # Create directories if they don't exist.
 mkdir -p "$TOOL_OUTPUT"
-
-#################################### CONTRACT COMPILATION #######################
-#TODO: add contract compilation, copy source code in tool output
 
 #################################### CONSUMER ###################################
 # Generate initial genesis file
@@ -86,7 +83,7 @@ do
   sleep 5
 done
 
-#TODO: set permissions for contract instantiation
+deployed_codes=0
 # Deploy contracts
 for CONTRACT in "$WASM_CONTRACTS"/*.wasm; do
   if [[ ! -e "$CONTRACT" ]]; then continue; fi
@@ -95,7 +92,14 @@ for CONTRACT in "$WASM_CONTRACTS"/*.wasm; do
     echo "Failed to upload $CONTRACT"
     exit 1
   fi
+  deployed_codes=$((deployed_codes+1))
 done
+
+if [[ $deployed_codes -eq 0 ]]; 
+  then
+    echo "No contracts to deploy. Please supply valid input."
+    exit 1
+fi
 
 #Stop the chain
 pkill $WASM_BINARY &> /dev/null || true

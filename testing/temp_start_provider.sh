@@ -57,7 +57,7 @@ tee $PROVIDER_HOME/consumer-proposal.json<<EOF
         "revision_number": 0,
         "revision_height": 4
     },
-    "genesis_hash": "5e637f4dbc6d6fb4b950ee259b13594deebfd7f92c68644d1b2264f2daa1b9df",
+    "genesis_hash": "519df96a862c30f53e67b1277e6834ab4bd59dfdd08c781d1b7cf3813080fb28",
     "binary_hash": "09184916f3e85aa6fa24d3c12f1e5465af2214f13db265a52fa9f4617146dea5",
     "spawn_time": "2022-06-01T09:10:00.000000000-00:00", 
     "deposit": "10000001stake"
