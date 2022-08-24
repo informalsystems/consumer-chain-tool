@@ -22,7 +22,7 @@ docker run --rm --network="host" \
     -v "$LOCATION_OF_SMART_CONTRACTS_BINARIES":/contract_binaries \
     -v "$PROVIDER_BINARY_PATH":/go/bin/interchain-security-pd \
     -v "$TOOL_OUTPUT_LOCATION":/tool_output \
-    dusanmaksimovic/consumer-chain-tool:latest sh ./finalize_genesis.sh "/contract_binaries" "$CHAIN_ID" "$MULTISIG_ADDRESS" "/tool_output" "$PROPOSAL_ID" "$PROVIDER_NODE_ADDRESS" "/go/bin/interchain-security-pd"
+    consumer-chain-tool:latest sh ./finalize_genesis.sh "/contract_binaries" "$CHAIN_ID" "$MULTISIG_ADDRESS" "/tool_output" "$PROPOSAL_ID" "$PROVIDER_NODE_ADDRESS" "/go/bin/interchain-security-pd"
 `
 
 func NewFinalizeGenesisCommand() *cobra.Command {

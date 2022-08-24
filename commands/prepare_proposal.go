@@ -25,7 +25,7 @@ DEPOSIT="%s"
 docker run --rm \
 -v "$LOCATION_OF_SMART_CONTRACTS_BINARIES":/contract_binaries \
 -v "$TOOL_OUTPUT_LOCATION":/tool_output \
-dusanmaksimovic/consumer-chain-tool:latest sh ./prepare_proposal.sh "/contract_binaries" "$CHAIN_ID" "$MULTISIG_ADDRESS" "/tool_output" "$PROPOSAL_TITLE" "$PROPOSAL_DESCRIPTION" "$REVISION_HEIGHT" "$REVISION_NUMBER" "$SPAWN_TIME" "$DEPOSIT"
+consumer-chain-tool:latest sh ./prepare_proposal.sh "/contract_binaries" "$CHAIN_ID" "$MULTISIG_ADDRESS" "/tool_output" "$PROPOSAL_TITLE" "$PROPOSAL_DESCRIPTION" "$REVISION_HEIGHT" "$REVISION_NUMBER" "$SPAWN_TIME" "$DEPOSIT"
 `
 
 //TODO: change the image name once it gets published
